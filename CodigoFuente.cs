@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.Win32;
 using System.Reflection; 
 
-// --- METADATOS DEL EJECUTABLE (Version 1.0 Real) ---
+// --- METADATOS DEL EJECUTABLE ---
 [assembly: AssemblyTitle("Leedeo Cleaner")]
 [assembly: AssemblyDescription("Herramienta de optimización y limpieza para Windows")]
 [assembly: AssemblyConfiguration("")]
@@ -17,12 +17,15 @@ using System.Reflection;
 [assembly: AssemblyCopyright("Copyright © 2025 Leedeo Studio")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion("1.0.0.1")]
+[assembly: AssemblyFileVersion("1.0.0.1")]
+
+// LEEDEO CLEANER v1.0 GOLD (FINAL RELEASE)
+// Incluye: Reparación de Disco (CHKDSK), Archivos (SFC) e Imagen (DISM)
 
 public class LimpiadorApp : Form
 {
-    // COLORES CORPORATIVOS
+    // COLORES
     Color cSidebar    = Color.FromArgb(32, 32, 32);     
     Color cFondo      = Color.FromArgb(18, 18, 18);     
     Color cBtnNormal  = Color.FromArgb(0, 120, 215);    
@@ -82,7 +85,7 @@ public class LimpiadorApp : Form
         lblTitulo.TextAlign = ContentAlignment.MiddleCenter;
         sidebar.Controls.Add(lblTitulo);
 
-        // VERSION TEXTO
+        // VERSION
         lblVersion = new Label();
         lblVersion.Text = "v1.0";
         lblVersion.Font = new Font("Segoe UI", 9, FontStyle.Regular);
@@ -100,7 +103,7 @@ public class LimpiadorApp : Form
         // HOVER
         AsignarHover(btnNormal, "► LIMPIEZA RÁPIDA\r\n\r\nBorra temporales y caché DNS al instante.\r\nPerfecto para el mantenimiento diario.");
         AsignarHover(btnDeep, "≡ LIMPIEZA PROFUNDA\r\n\r\nElimina Logs, Updates viejos y basura.\r\nRecomendado usar una vez al mes.");
-        AsignarHover(btnRepair, "✚ REPARACIÓN TOTAL\r\n\r\nEjecuta diagnósticos (SFC/DISM).\r\nÚsalo solo si notas errores en Windows.");
+        AsignarHover(btnRepair, "✚ REPARACIÓN TOTAL\r\n\r\nEjecuta diagnósticos completos (Disco, Archivos e Imagen).\r\nÚsalo solo si notas errores en Windows.");
 
         // CLICK
         btnNormal.Click += (s, e) => Ejecutar(1);
@@ -111,7 +114,7 @@ public class LimpiadorApp : Form
         sidebar.Controls.Add(btnDeep);
         sidebar.Controls.Add(btnRepair);
 
-        // --- BOTON CERRAR APP (Ajustado) ---
+        // --- BOTON CERRAR APP ---
         btnExit = CrearBotonGrafico("CERRAR LA APP", "App.btn_salir.png", 463, cLeedeo);
         btnExit.Size = new Size(240, 55);
         btnExit.Location = new Point(0, 463);
@@ -120,11 +123,12 @@ public class LimpiadorApp : Form
         btnExit.ForeColor = Color.White;
         btnExit.FlatAppearance.MouseOverBackColor = ControlPaint.Light(cLeedeo);
         
-        // Ocultamos la barrita lateral pequeña
+        // Ocultamos la barrita lateral
         foreach(Control c in btnExit.Controls) { c.Visible = false; }
 
         btnExit.Click += (s,e) => Application.Exit();
         sidebar.Controls.Add(btnExit);
+
 
         // CONTENIDO PRINCIPAL
         mainContent = new Panel();
@@ -228,7 +232,7 @@ public class LimpiadorApp : Form
         btn.BackColor = cSidebar;
         btn.ForeColor = Color.White;
         
-        // Alineacion a la izquierda (ESTANDAR para todos)
+        // Alineacion a la izquierda
         btn.TextAlign = ContentAlignment.MiddleLeft; 
         btn.Font = new Font("Segoe UI", 10);
         btn.Cursor = Cursors.Hand;
@@ -321,15 +325,25 @@ public class LimpiadorApp : Form
             Log("NOTA: Este proceso puede tardar 20-30 minutos.");
             Log("No cierres la ventana hasta que termine.");
             
-            Log("[1/5] SFC /SCANNOW...");
+            // FASE 1: DISCO
+            Log("[1/6] Analizando salud del Disco (CHKDSK)..."); 
+            await Cmd("chkdsk C: /scan"); 
+
+            // FASE 2: ARCHIVOS
+            Log("[2/6] Verificando integridad (SFC)...");
             await Cmd("sfc /scannow");
-            Log("[2/5] DISM ScanHealth...");
+
+            // FASE 3: IMAGEN
+            Log("[3/6] DISM ScanHealth...");
             await Cmd("DISM.exe /Online /Cleanup-Image /ScanHealth");
-            Log("[3/5] DISM CheckHealth...");
+            
+            Log("[4/6] DISM CheckHealth...");
             await Cmd("DISM.exe /Online /Cleanup-Image /CheckHealth");
-            Log("[4/5] DISM RestoreHealth...");
+            
+            Log("[5/6] DISM RestoreHealth...");
             await Cmd("DISM.exe /Online /Cleanup-Image /RestoreHealth");
-            Log("[5/5] DISM ComponentCleanup...");
+            
+            Log("[6/6] Limpiando componentes obsoletos...");
             await Cmd("DISM.exe /Online /Cleanup-Image /startComponentCleanup");
         }
 
