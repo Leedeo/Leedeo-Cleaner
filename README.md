@@ -4,6 +4,10 @@
 ![Platform](https://img.shields.io/badge/platform-Windows_10%20%7C%2011-blue?style=for-the-badge&logo=windows)
 ![License](https://img.shields.io/badge/license-MIT-green?style=for-the-badge)
 
+<p align="center">
+  <img src="captura.png" alt="Interfaz de Leedeo Cleaner" width="700">
+</p>
+
 **Leedeo Cleaner** es una herramienta de mantenimiento y reparación para Windows diseñada para ser **rápida, ligera y 100% portable**. Sin instalaciones, sin publicidad y de código abierto.
 
 Elimina archivos basura, optimiza el sistema y ejecuta comandos de reparación nativos de Microsoft (SFC/DISM) con una interfaz moderna y amigable.
