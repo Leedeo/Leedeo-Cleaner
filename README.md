@@ -1,6 +1,6 @@
 # 🧹 Leedeo Cleaner
 
-![Version](https://img.shields.io/badge/version-1.0.0-blueviolet?style=for-the-badge)
+![Version](https://img.shields.io/badge/version-1.1.0-blueviolet?style=for-the-badge)
 ![Platform](https://img.shields.io/badge/platform-Windows_10%20%7C%2011-blue?style=for-the-badge&logo=windows)
 ![License](https://img.shields.io/badge/license-MIT-green?style=for-the-badge)
 
