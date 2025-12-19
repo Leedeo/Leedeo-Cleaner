@@ -8,20 +8,14 @@ using System.Threading.Tasks;
 using Microsoft.Win32;
 using System.Reflection; 
 
-// --- METADATOS DEL EJECUTABLE ---
+// --- METADATOS ---
 [assembly: AssemblyTitle("Leedeo Cleaner")]
-[assembly: AssemblyDescription("Herramienta de optimización y limpieza para Windows")]
-[assembly: AssemblyConfiguration("")]
+[assembly: AssemblyDescription("Herramienta de optimización y limpieza")]
 [assembly: AssemblyCompany("Leedeo Studio")]
 [assembly: AssemblyProduct("Leedeo Cleaner")]
 [assembly: AssemblyCopyright("Copyright © 2025 Leedeo Studio")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
-[assembly: AssemblyVersion("1.0.0.1")]
-[assembly: AssemblyFileVersion("1.0.0.1")]
-
-// LEEDEO CLEANER v1.0 GOLD (FINAL RELEASE)
-// Incluye: Reparación de Disco (CHKDSK), Archivos (SFC) e Imagen (DISM)
+[assembly: AssemblyVersion("1.1.0.0")] // Subimos version por la nueva funcionalidad
+[assembly: AssemblyFileVersion("1.1.0.0")]
 
 public class LimpiadorApp : Form
 {
@@ -87,7 +81,7 @@ public class LimpiadorApp : Form
 
         // VERSION
         lblVersion = new Label();
-        lblVersion.Text = "v1.0";
+        lblVersion.Text = "v1.1";
         lblVersion.Font = new Font("Segoe UI", 9, FontStyle.Regular);
         lblVersion.ForeColor = Color.Gray; 
         lblVersion.Location = new Point(20, 165);
@@ -114,7 +108,7 @@ public class LimpiadorApp : Form
         sidebar.Controls.Add(btnDeep);
         sidebar.Controls.Add(btnRepair);
 
-        // --- BOTON CERRAR APP ---
+        // BOTON CERRAR
         btnExit = CrearBotonGrafico("CERRAR LA APP", "App.btn_salir.png", 463, cLeedeo);
         btnExit.Size = new Size(240, 55);
         btnExit.Location = new Point(0, 463);
@@ -123,14 +117,12 @@ public class LimpiadorApp : Form
         btnExit.ForeColor = Color.White;
         btnExit.FlatAppearance.MouseOverBackColor = ControlPaint.Light(cLeedeo);
         
-        // Ocultamos la barrita lateral
         foreach(Control c in btnExit.Controls) { c.Visible = false; }
 
         btnExit.Click += (s,e) => Application.Exit();
         sidebar.Controls.Add(btnExit);
 
-
-        // CONTENIDO PRINCIPAL
+        // CONTENIDO
         mainContent = new Panel();
         mainContent.Location = new Point(242, 1); 
         mainContent.Size = new Size(537, 518);
@@ -140,7 +132,7 @@ public class LimpiadorApp : Form
         mainContent.MouseUp += MouseUpDrag;
         this.Controls.Add(mainContent);
 
-        // 1. INFO SISTEMA
+        // INFO SISTEMA
         lblSystemInfo = new Label();
         lblSystemInfo.AutoSize = true;
         lblSystemInfo.Location = new Point(30, 20);
@@ -149,7 +141,7 @@ public class LimpiadorApp : Form
         lblSystemInfo.Text = CargarDatosSistema();
         mainContent.Controls.Add(lblSystemInfo);
 
-        // 2. TEXTO DONACION
+        // DONACION
         lblDonar = new Label();
         lblDonar.Text = "Si esta herramienta te ha ahorrado tiempo, considera apoyar el proyecto:";
         lblDonar.ForeColor = Color.Gray;
@@ -158,7 +150,7 @@ public class LimpiadorApp : Form
         lblDonar.Location = new Point(30, 75);
         mainContent.Controls.Add(lblDonar);
 
-        // 3. LINK KO-FI
+        // KO-FI
         linkKofi = new LinkLabel();
         linkKofi.Text = "☕ Apoyar en Ko-fi (Leedeo)";
         linkKofi.Font = new Font("Segoe UI", 9, FontStyle.Bold);
@@ -187,7 +179,104 @@ public class LimpiadorApp : Form
         mainContent.Controls.Add(txtLog);
     }
 
-    // --- CARGADORES ---
+    // --- LOGICA DE LIMPIEZA CON CALCULO DE ESPACIO ---
+    private async void Ejecutar(int nivel)
+    {
+        btnNormal.Enabled = false; btnDeep.Enabled = false; btnRepair.Enabled = false; btnExit.Enabled = false;
+        txtLog.Clear();
+
+        // 1. Medir espacio inicial
+        long espacioInicio = ObtenerEspacioLibre();
+        Log("Espacio libre inicial: " + FormatearTamano(espacioInicio));
+        Log("------------------------------------------------");
+
+        if (nivel == 1) {
+            Log(">>> ► INICIANDO LIMPIEZA RÁPIDA...");
+            await Cmd("del /s /q %TEMP%\\* >nul 2>&1");
+            await Cmd("del /s /q C:\\Windows\\Temp\\* >nul 2>&1");
+            await Cmd("ipconfig /flushdns");
+            Log("> Reiniciando Explorer...");
+            await Cmd("taskkill /f /im explorer.exe >nul 2>&1");
+            await Cmd("del /q %LOCALAPPDATA%\\IconCache.db >nul 2>&1");
+            Process.Start("explorer.exe");
+        }
+
+        if (nivel == 2) {
+            Log(">>> ≡ INICIANDO LIMPIEZA PROFUNDA...");
+            await Cmd("del /s /q %TEMP%\\* >nul 2>&1");
+            await Cmd("del /s /q C:\\Windows\\Temp\\* >nul 2>&1");
+            Log("> Gestionando Windows Update...");
+            await Cmd("net stop wuauserv >nul 2>&1");
+            await Cmd("net stop bits >nul 2>&1");
+            await Cmd("del /s /q C:\\Windows\\SoftwareDistribution\\Download\\* >nul 2>&1");
+            await Cmd("net start wuauserv >nul 2>&1");
+            Log("> Eliminando Logs y Rastros...");
+            await Cmd("for /f \"tokens=*\" %i in ('wevtutil el') do wevtutil cl \"%i\"");
+            await Cmd("del /s /q \"C:\\ProgramData\\Microsoft\\Windows Defender\\Scans\\History\\*\" >nul 2>&1");
+            await Cmd("del /s /q C:\\Windows\\Prefetch\\* >nul 2>&1");
+        }
+
+        if (nivel == 3) {
+            Log(">>> ✚ REPARACIÓN DE SISTEMA");
+            Log("NOTA: Este proceso puede tardar 20-30 minutos.");
+            Log("No cierres la ventana hasta que termine.");
+            
+            Log("[1/6] Analizando salud del Disco (CHKDSK)..."); 
+            await Cmd("chkdsk C: /scan"); 
+            Log("[2/6] Verificando integridad (SFC)...");
+            await Cmd("sfc /scannow");
+            Log("[3/6] DISM ScanHealth...");
+            await Cmd("DISM.exe /Online /Cleanup-Image /ScanHealth");
+            Log("[4/6] DISM CheckHealth...");
+            await Cmd("DISM.exe /Online /Cleanup-Image /CheckHealth");
+            Log("[5/6] DISM RestoreHealth...");
+            await Cmd("DISM.exe /Online /Cleanup-Image /RestoreHealth");
+            Log("[6/6] Limpiando componentes obsoletos...");
+            await Cmd("DISM.exe /Online /Cleanup-Image /startComponentCleanup");
+        }
+
+        // 2. Medir espacio final y calcular diferencia
+        long espacioFin = ObtenerEspacioLibre();
+        long bytesLiberados = espacioFin - espacioInicio;
+        
+        // Evitar numeros negativos si Windows escribe cosas en segundo plano
+        if (bytesLiberados < 0) bytesLiberados = 0; 
+
+        string textoLiberado = FormatearTamano(bytesLiberados);
+
+        Log("");
+        Log("------------------------------------------------");
+        Log(">>> ✅ PROCESO FINALIZADO.");
+        Log(">>> ESPACIO LIBERADO: " + textoLiberado);
+        
+        MessageBox.Show("Operación completada con éxito.\n\nEspacio recuperado: " + textoLiberado, "Leedeo Cleaner");
+        
+        btnNormal.Enabled = true; btnDeep.Enabled = true; btnRepair.Enabled = true; btnExit.Enabled = true;
+    }
+
+    // --- NUEVAS FUNCIONES DE ESPACIO ---
+    private long ObtenerEspacioLibre()
+    {
+        try {
+            DriveInfo drive = new DriveInfo("C");
+            return drive.TotalFreeSpace;
+        } catch { return 0; }
+    }
+
+    private string FormatearTamano(long bytes)
+    {
+        string[] sufijos = { "B", "KB", "MB", "GB", "TB" };
+        int contador = 0;
+        decimal numero = (decimal)bytes;
+        while (Math.Round(numero / 1024) >= 1)
+        {
+            numero = numero / 1024;
+            contador++;
+        }
+        return string.Format("{0:n1} {1}", numero, sufijos[contador]);
+    }
+
+    // --- CARGADORES VISUALES ---
     private Image CargarImagen(string recurso) {
         try {
             var asm = Assembly.GetExecutingAssembly();
@@ -220,7 +309,6 @@ public class LimpiadorApp : Form
         } catch { return "Leedeo Cleaner Ready"; }
     }
 
-    // --- CREADOR DE BOTON GRAFICO ---
     private Button CrearBotonGrafico(string texto, string recursoImagen, int top, Color colorBarra)
     {
         Button btn = new Button();
@@ -231,8 +319,6 @@ public class LimpiadorApp : Form
         btn.FlatAppearance.BorderSize = 0;
         btn.BackColor = cSidebar;
         btn.ForeColor = Color.White;
-        
-        // Alineacion a la izquierda
         btn.TextAlign = ContentAlignment.MiddleLeft; 
         btn.Font = new Font("Segoe UI", 10);
         btn.Cursor = Cursors.Hand;
@@ -287,70 +373,6 @@ public class LimpiadorApp : Form
                 p.WaitForExit();
             } catch {}
         });
-    }
-
-    private async void Ejecutar(int nivel)
-    {
-        btnNormal.Enabled = false; btnDeep.Enabled = false; btnRepair.Enabled = false; btnExit.Enabled = false;
-        txtLog.Clear();
-
-        if (nivel == 1) {
-            Log(">>> ► INICIANDO LIMPIEZA RÁPIDA...");
-            await Cmd("del /s /q %TEMP%\\* >nul 2>&1");
-            await Cmd("del /s /q C:\\Windows\\Temp\\* >nul 2>&1");
-            await Cmd("ipconfig /flushdns");
-            Log("> Reiniciando Explorer...");
-            await Cmd("taskkill /f /im explorer.exe >nul 2>&1");
-            await Cmd("del /q %LOCALAPPDATA%\\IconCache.db >nul 2>&1");
-            Process.Start("explorer.exe");
-        }
-
-        if (nivel == 2) {
-            Log(">>> ≡ INICIANDO LIMPIEZA PROFUNDA...");
-            await Cmd("del /s /q %TEMP%\\* >nul 2>&1");
-            await Cmd("del /s /q C:\\Windows\\Temp\\* >nul 2>&1");
-            Log("> Gestionando Windows Update...");
-            await Cmd("net stop wuauserv >nul 2>&1");
-            await Cmd("net stop bits >nul 2>&1");
-            await Cmd("del /s /q C:\\Windows\\SoftwareDistribution\\Download\\* >nul 2>&1");
-            await Cmd("net start wuauserv >nul 2>&1");
-            Log("> Eliminando Logs y Rastros...");
-            await Cmd("for /f \"tokens=*\" %i in ('wevtutil el') do wevtutil cl \"%i\"");
-            await Cmd("del /s /q \"C:\\ProgramData\\Microsoft\\Windows Defender\\Scans\\History\\*\" >nul 2>&1");
-            await Cmd("del /s /q C:\\Windows\\Prefetch\\* >nul 2>&1");
-        }
-
-        if (nivel == 3) {
-            Log(">>> ✚ REPARACIÓN DE SISTEMA");
-            Log("NOTA: Este proceso puede tardar 20-30 minutos.");
-            Log("No cierres la ventana hasta que termine.");
-            
-            // FASE 1: DISCO
-            Log("[1/6] Analizando salud del Disco (CHKDSK)..."); 
-            await Cmd("chkdsk C: /scan"); 
-
-            // FASE 2: ARCHIVOS
-            Log("[2/6] Verificando integridad (SFC)...");
-            await Cmd("sfc /scannow");
-
-            // FASE 3: IMAGEN
-            Log("[3/6] DISM ScanHealth...");
-            await Cmd("DISM.exe /Online /Cleanup-Image /ScanHealth");
-            
-            Log("[4/6] DISM CheckHealth...");
-            await Cmd("DISM.exe /Online /Cleanup-Image /CheckHealth");
-            
-            Log("[5/6] DISM RestoreHealth...");
-            await Cmd("DISM.exe /Online /Cleanup-Image /RestoreHealth");
-            
-            Log("[6/6] Limpiando componentes obsoletos...");
-            await Cmd("DISM.exe /Online /Cleanup-Image /startComponentCleanup");
-        }
-
-        Log("");
-        Log(">>> ✅ PROCESO FINALIZADO.");
-        MessageBox.Show("Operación completada con éxito.", "Leedeo Cleaner");
-        btnNormal.Enabled = true; btnDeep.Enabled = true; btnRepair.Enabled = true; btnExit.Enabled = true;
     }
 
     private void MouseDownDrag(object sender, MouseEventArgs e) { dragging = true; dragCursorPoint = Cursor.Position; dragFormPoint = this.Location; }
