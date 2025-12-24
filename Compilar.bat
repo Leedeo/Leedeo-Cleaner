@@ -2,9 +2,6 @@
 cd /d "%~dp0"
 color 0A
 title Compilando Leedeo Cleaner (Graphic Edition)...
-echo ==============================================
-echo   COMPILADOR LEEDEO CLEANER (GRAPHIC)
-echo ==============================================
 echo.
 
 :: 1. BUSCAR COMPILADOR
@@ -18,9 +15,8 @@ if not exist "icono.ico" ( echo [FALTA] icono.ico & pause & exit )
 if not exist "btn_rapida.png" ( echo [FALTA] btn_rapida.png & pause & exit )
 if not exist "btn_profunda.png" ( echo [FALTA] btn_profunda.png & pause & exit )
 if not exist "btn_reparar.png" ( echo [FALTA] btn_reparar.png & pause & exit )
-if not exist "btn_salir.png" ( echo [FALTA] btn_salir.png & pause & exit )
 
-:: 3. COMPILAR E INCRUSTAR TODO
+:: 3. COMPILAR
 echo [Compilando...]
 
 "%csc%" /target:winexe /out:"LeedeoCleaner.exe" ^
@@ -30,12 +26,11 @@ echo [Compilando...]
 /resource:btn_rapida.png,App.btn_rapida.png ^
 /resource:btn_profunda.png,App.btn_profunda.png ^
 /resource:btn_reparar.png,App.btn_reparar.png ^
-/resource:btn_salir.png,App.btn_salir.png ^
 /r:System.dll,System.Drawing.dll,System.Windows.Forms.dll "CodigoFuente.cs"
 
 if %errorlevel% == 0 (
     echo.
-    echo [EXITO] LeedeoCleaner.exe creado con iconos graficos.
+    echo [EXITO] LeedeoCleaner.exe creado.
 ) else (
     color 0C
     echo [ERROR] Algo fallo. Revisa arriba.
