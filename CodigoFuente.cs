@@ -8,9 +8,8 @@ using System.Threading.Tasks;
 using Microsoft.Win32;
 using System.Reflection; 
 
-// LEEDEO CLEANER v1.3 GOLD (FIXED UI)
-// Botón Cerrar en esquina superior derecha (Morado -> Rojo)
-// + Función Winget corregida
+// LEEDEO CLEANER v1.3 GOLD (SAFE WINGET + UI FINAL)
+// Novedades: Winget con confirmación visual y Botón de cierre superior estilizado.
 
 [assembly: AssemblyTitle("Leedeo Cleaner")]
 [assembly: AssemblyDescription("Herramienta de optimización y limpieza")]
@@ -51,7 +50,9 @@ public class LimpiadorApp : Form
         this.BackColor = cFondo;
         this.Padding = new Padding(1);
         this.Text = "Leedeo Cleaner";
-        this.Icon = CargarIcono("App.icono.ico");
+        
+        try { this.Icon = CargarIcono("App.icono.ico"); } catch {}
+
         this.Paint += (s, e) => e.Graphics.DrawRectangle(new Pen(Color.FromArgb(60,60,60)), 0, 0, Width-1, Height-1);
 
         // SIDEBAR
@@ -92,19 +93,19 @@ public class LimpiadorApp : Form
         lblVersion.TextAlign = ContentAlignment.TopCenter;
         sidebar.Controls.Add(lblVersion);
 
-        // BOTONES MENU (Solo funciones)
+        // BOTONES MENU
         btnNormal = CrearBotonGrafico("LIMPIEZA RÁPIDA", "App.btn_rapida.png", 220, cBtnNormal);
         btnDeep   = CrearBotonGrafico("LIMPIEZA PROFUNDA", "App.btn_profunda.png", 275, cBtnDeep);
         btnRepair = CrearBotonGrafico("REPARAR SISTEMA", "App.btn_reparar.png", 330, cBtnRepair);
         btnUpdate = CrearBotonGrafico("ACTUALIZAR APPS", "App.btn_actualizar.png", 385, cBtnUpdate);
 
-        // HOVER
+        // HOVER TEXTOS
         AsignarHover(btnNormal, "► LIMPIEZA RÁPIDA\r\n\r\nBorra temporales y caché DNS al instante.\r\nPerfecto para el mantenimiento diario.");
         AsignarHover(btnDeep, "≡ LIMPIEZA PROFUNDA\r\n\r\nElimina Logs, Updates viejos y basura.\r\nRecomendado usar una vez al mes.");
         AsignarHover(btnRepair, "✚ REPARACIÓN TOTAL\r\n\r\nAnaliza y repara Disco, Archivos e Imagen.\r\nSi detecta errores, te ayudará a corregirlos.");
-        AsignarHover(btnUpdate, "⚡ ACTUALIZAR APPS (WINGET)\r\n\r\nBusca actualizaciones para tus programas instalados y las instala automáticamente.\r\n(Requiere Windows 10/11 actualizado).");
+        AsignarHover(btnUpdate, "⚡ ACTUALIZAR APPS (WINGET)\r\n\r\nBusca actualizaciones para tus programas.\r\nTe mostrará una lista para que confirmes antes de instalar nada.");
 
-        // CLICK
+        // CLICK EVENTOS
         btnNormal.Click += (s, e) => Ejecutar(1);
         btnDeep.Click += (s, e) => Ejecutar(2);
         btnRepair.Click += (s, e) => Ejecutar(3);
@@ -115,7 +116,7 @@ public class LimpiadorApp : Form
         sidebar.Controls.Add(btnRepair);
         sidebar.Controls.Add(btnUpdate);
 
-        // CONTENIDO
+        // CONTENIDO PRINCIPAL
         mainContent = new Panel();
         mainContent.Location = new Point(242, 1); 
         mainContent.Size = new Size(537, 518);
@@ -125,7 +126,7 @@ public class LimpiadorApp : Form
         mainContent.MouseUp += MouseUpDrag;
         this.Controls.Add(mainContent);
 
-        // --- BOTON CERRAR SUPERIOR DERECHO (CORREGIDO) ---
+        // --- BOTON CERRAR SUPERIOR DERECHO (ESTILIZADO) ---
         btnCerrar = new Button();
         btnCerrar.Text = "\u2715"; // X
         btnCerrar.Font = new Font("Segoe UI", 11, FontStyle.Bold);
@@ -135,12 +136,13 @@ public class LimpiadorApp : Form
         btnCerrar.FlatStyle = FlatStyle.Flat;
         btnCerrar.FlatAppearance.BorderSize = 0;
         
-        // Colores pedidos: Morado (Logo) -> Rojo al pasar
+        // COLOR POR DEFECTO: MORADO (Tu marca)
         btnCerrar.BackColor = cLeedeo; 
         btnCerrar.ForeColor = Color.White;
         
-        btnCerrar.FlatAppearance.MouseOverBackColor = Color.Red; 
-        btnCerrar.FlatAppearance.MouseDownBackColor = Color.DarkRed;
+        // HOVER: SE PONE ROJO
+        btnCerrar.MouseEnter += (s, e) => { btnCerrar.BackColor = Color.Red; };
+        btnCerrar.MouseLeave += (s, e) => { btnCerrar.BackColor = cLeedeo; }; // Vuelve a morado
         
         btnCerrar.Click += (s, e) => Application.Exit();
         mainContent.Controls.Add(btnCerrar);
@@ -189,7 +191,7 @@ public class LimpiadorApp : Form
         mainContent.Controls.Add(txtLog);
     }
 
-    // --- LOGICA ---
+    // --- LOGICA PRINCIPAL ---
     private async void Ejecutar(int nivel)
     {
         string tituloConfirm = "";
@@ -209,7 +211,7 @@ public class LimpiadorApp : Form
         }
         else if (nivel == 4) {
             tituloConfirm = "Actualizar Aplicaciones";
-            msgConfirm = "Esta función usará 'Winget' para buscar y actualizar todos los programas instalados en tu PC.\n\nSe abrirá una ventana externa para mostrar el progreso de descarga.\n¿Deseas continuar?";
+            msgConfirm = "Se abrirá el gestor Winget para buscar actualizaciones.\n\nSe mostrará una lista y podrás confirmar si quieres instalar todo o cancelar.\n¿Continuar?";
         }
 
         if (MessageBox.Show(msgConfirm, tituloConfirm, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No) return;
@@ -220,6 +222,7 @@ public class LimpiadorApp : Form
             return;
         }
 
+        // Resto de limpiezas
         btnNormal.Enabled = false; btnDeep.Enabled = false; btnRepair.Enabled = false; btnUpdate.Enabled = false; btnCerrar.Enabled = false;
         txtLog.Clear();
 
@@ -261,9 +264,10 @@ public class LimpiadorApp : Form
             Log("[1/6] Analizando salud del Disco (CHKDSK)..."); 
             string resDisco = await CmdCapturar("chkdsk C: /scan");
             
-            if (resDisco.Contains("no ha encontrado problemas") || resDisco.Contains("found no problems")) {
+            if (resDisco.Contains("no ha encontrado problemas") || resDisco.Contains("found no problems"))
                 Log("   ✅ ESTADO DISCO: Sano. Sin errores físicos.");
-            } else {
+            else
+            {
                 Log("   ⚠️ ESTADO DISCO: Se detectaron anomalías.");
                 if (MessageBox.Show("Se han detectado errores en el disco. ¿Programar reparación al reiniciar?", "Error Disco", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes) {
                     await Cmd("fsutil dirty set C:");
@@ -292,7 +296,7 @@ public class LimpiadorApp : Form
             else
                 Log("   ⚠️ ESTADO IMAGEN: Hubo un problema al restaurar la imagen.");
 
-            Log("[6/6] Limpiando componentes obsoletos...");
+            Log("[6/6] Limpiando componentes...");
             await Cmd("DISM.exe /Online /Cleanup-Image /startComponentCleanup");
         }
 
@@ -311,11 +315,11 @@ public class LimpiadorApp : Form
         btnNormal.Enabled = true; btnDeep.Enabled = true; btnRepair.Enabled = true; btnUpdate.Enabled = true; btnCerrar.Enabled = true;
     }
 
-    // --- LOGICA WINGET CORREGIDA ---
+    // --- LOGICA WINGET SEGURA (Listar y Pausar) ---
     private async void EjecutarWinget()
     {
-        txtLog.AppendText("\r\n>>> ⚡ INICIANDO ACTUALIZACIÓN DE APPS...\r\n");
-        txtLog.AppendText("Buscando ejecutable de Winget...\r\n");
+        txtLog.AppendText("\r\n>>> ⚡ INICIANDO GESTOR DE ACTUALIZACIONES...\r\n");
+        txtLog.AppendText("Buscando Winget...\r\n");
         
         string rutaWinget = "";
         string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
@@ -330,18 +334,30 @@ public class LimpiadorApp : Form
 
         if (string.IsNullOrEmpty(rutaWinget))
         {
-            MessageBox.Show("No se ha podido localizar 'winget.exe'.\n\nAsegúrate de tener actualizado el 'Instalador de aplicación' desde la Microsoft Store.", "Winget no encontrado", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            txtLog.AppendText("❌ Error: Ejecutable no encontrado.\r\n");
+            MessageBox.Show("No se encontró Winget en este PC.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            txtLog.AppendText("❌ Error: Winget no encontrado.\r\n");
             return;
         }
 
-        txtLog.AppendText("✅ Winget localizado. Lanzando actualizador...\r\n");
-        txtLog.AppendText("Se abrirá una ventana externa. NO la cierres hasta que termine.\r\n");
+        txtLog.AppendText("✅ Winget localizado.\r\n");
+        txtLog.AppendText("Abriendo lista de actualizaciones. Revisa antes de aceptar.\r\n");
 
         try {
             Process p = new Process();
             p.StartInfo.FileName = "cmd.exe";
-            p.StartInfo.Arguments = "/c \"\"" + rutaWinget + "\" upgrade --all --include-unknown --accept-source-agreements --accept-package-agreements & echo. & echo -------------------------------- & echo PROCESO FINALIZADO & pause\"";
+            // COMANDO SEGURO: Muestra lista, advierte, pausa y solo entonces actualiza todo
+            string comandos = "/c \"\"" + rutaWinget + "\" upgrade " +
+                "& echo. & echo ======================================================= " +
+                "& echo  ATENCION: REVISA LA LISTA DE ARRIBA " +
+                "& echo ======================================================= " +
+                "& echo. & echo  Si ves algun programa que NO quieras actualizar, " +
+                "& echo  CIERRA ESTA VENTANA AHORA (Dale a la X de arriba). " +
+                "& echo. & echo  Si quieres actualizar TODO lo de la lista, presiona una tecla... " +
+                "& pause " +
+                "& \"" + rutaWinget + "\" upgrade --all --include-unknown --accept-source-agreements --accept-package-agreements " +
+                "& echo. & echo PROCESO FINALIZADO & pause\"";
+
+            p.StartInfo.Arguments = comandos;
             p.StartInfo.UseShellExecute = true; 
             p.Start();
         } catch (Exception ex) {
@@ -437,7 +453,10 @@ public class LimpiadorApp : Form
             if(txtLog.Text.StartsWith("Sistema") || txtLog.Text.StartsWith("►") || txtLog.Text.StartsWith("≡") || txtLog.Text.StartsWith("✚") || txtLog.Text.StartsWith("⚡")) txtLog.Text = desc;
         };
         btn.MouseLeave += (s, e) => {
-            if (btn.Text != "\u2715") btn.BackColor = cSidebar; 
+            // Logica especial para no cambiar el color del boton cerrar al salir si no es necesario
+            // Pero como el boton cerrar se gestiona aparte, aqui solo gestionamos los del menu
+            if (btn != btnCerrar) btn.BackColor = cSidebar;
+            
             if(txtLog.Text == desc) txtLog.Text = "Sistema listo. Esperando órdenes...";
         };
     }
