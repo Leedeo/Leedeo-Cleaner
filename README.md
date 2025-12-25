@@ -63,4 +63,4 @@ Si esta herramienta te ha sido útil y quieres apoyar el desarrollo de más soft
 
 ---
 
-**Creado con ❤️ por Leedeo Studio.**
+**Creado con ❤️ por [Leedeo Studio](https://www.youtube.com/@Leedeo).**
