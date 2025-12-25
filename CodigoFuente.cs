@@ -8,16 +8,17 @@ using System.Threading.Tasks;
 using Microsoft.Win32;
 using System.Reflection; 
 
-// LEEDEO CLEANER v1.2
-// Diseño limpio (X arriba a la derecha) + Confirmaciones de seguridad
+// LEEDEO CLEANER v1.3 GOLD (FIXED UI)
+// Botón Cerrar en esquina superior derecha (Morado -> Rojo)
+// + Función Winget corregida
 
 [assembly: AssemblyTitle("Leedeo Cleaner")]
 [assembly: AssemblyDescription("Herramienta de optimización y limpieza")]
 [assembly: AssemblyCompany("Leedeo Studio")]
 [assembly: AssemblyProduct("Leedeo Cleaner")]
 [assembly: AssemblyCopyright("Copyright © 2025 Leedeo Studio")]
-[assembly: AssemblyVersion("1.2.0.0")]
-[assembly: AssemblyFileVersion("1.2.0.0")]
+[assembly: AssemblyVersion("1.3.0.0")]
+[assembly: AssemblyFileVersion("1.3.0.0")]
 
 public class LimpiadorApp : Form
 {
@@ -27,6 +28,7 @@ public class LimpiadorApp : Form
     Color cBtnNormal  = Color.FromArgb(0, 120, 215);    
     Color cBtnDeep    = Color.FromArgb(210, 60, 60);    
     Color cBtnRepair  = Color.FromArgb(39, 174, 96);    
+    Color cBtnUpdate  = Color.FromArgb(255, 140, 0);    
     Color cLeedeo     = ColorTranslator.FromHtml("#914d97"); 
     Color cVerde      = Color.Lime;
 
@@ -35,7 +37,7 @@ public class LimpiadorApp : Form
     private Label lblTitulo, lblVersion, lblSystemInfo, lblDonar;
     private LinkLabel linkKofi;
     private TextBox txtLog;
-    private Button btnNormal, btnDeep, btnRepair, btnCerrar;
+    private Button btnNormal, btnDeep, btnRepair, btnUpdate, btnCerrar;
 
     private bool dragging = false;
     private Point dragCursorPoint, dragFormPoint;
@@ -49,9 +51,7 @@ public class LimpiadorApp : Form
         this.BackColor = cFondo;
         this.Padding = new Padding(1);
         this.Text = "Leedeo Cleaner";
-
-        try { this.Icon = CargarIcono("App.icono.ico"); } catch {}
-
+        this.Icon = CargarIcono("App.icono.ico");
         this.Paint += (s, e) => e.Graphics.DrawRectangle(new Pen(Color.FromArgb(60,60,60)), 0, 0, Width-1, Height-1);
 
         // SIDEBAR
@@ -84,7 +84,7 @@ public class LimpiadorApp : Form
 
         // VERSION
         lblVersion = new Label();
-        lblVersion.Text = "v1.2";
+        lblVersion.Text = "v1.3";
         lblVersion.Font = new Font("Segoe UI", 9, FontStyle.Regular);
         lblVersion.ForeColor = Color.Gray; 
         lblVersion.Location = new Point(20, 165);
@@ -92,24 +92,28 @@ public class LimpiadorApp : Form
         lblVersion.TextAlign = ContentAlignment.TopCenter;
         sidebar.Controls.Add(lblVersion);
 
-        // BOTONES (Solo los 3 de acción)
+        // BOTONES MENU (Solo funciones)
         btnNormal = CrearBotonGrafico("LIMPIEZA RÁPIDA", "App.btn_rapida.png", 220, cBtnNormal);
         btnDeep   = CrearBotonGrafico("LIMPIEZA PROFUNDA", "App.btn_profunda.png", 275, cBtnDeep);
         btnRepair = CrearBotonGrafico("REPARAR SISTEMA", "App.btn_reparar.png", 330, cBtnRepair);
+        btnUpdate = CrearBotonGrafico("ACTUALIZAR APPS", "App.btn_actualizar.png", 385, cBtnUpdate);
 
         // HOVER
         AsignarHover(btnNormal, "► LIMPIEZA RÁPIDA\r\n\r\nBorra temporales y caché DNS al instante.\r\nPerfecto para el mantenimiento diario.");
         AsignarHover(btnDeep, "≡ LIMPIEZA PROFUNDA\r\n\r\nElimina Logs, Updates viejos y basura.\r\nRecomendado usar una vez al mes.");
         AsignarHover(btnRepair, "✚ REPARACIÓN TOTAL\r\n\r\nAnaliza y repara Disco, Archivos e Imagen.\r\nSi detecta errores, te ayudará a corregirlos.");
+        AsignarHover(btnUpdate, "⚡ ACTUALIZAR APPS (WINGET)\r\n\r\nBusca actualizaciones para tus programas instalados y las instala automáticamente.\r\n(Requiere Windows 10/11 actualizado).");
 
         // CLICK
         btnNormal.Click += (s, e) => Ejecutar(1);
         btnDeep.Click += (s, e) => Ejecutar(2);
         btnRepair.Click += (s, e) => Ejecutar(3);
+        btnUpdate.Click += (s, e) => Ejecutar(4);
 
         sidebar.Controls.Add(btnNormal);
         sidebar.Controls.Add(btnDeep);
         sidebar.Controls.Add(btnRepair);
+        sidebar.Controls.Add(btnUpdate);
 
         // CONTENIDO
         mainContent = new Panel();
@@ -121,22 +125,22 @@ public class LimpiadorApp : Form
         mainContent.MouseUp += MouseUpDrag;
         this.Controls.Add(mainContent);
 
-        // --- BOTON CERRAR SUPERIOR DERECHO ---
+        // --- BOTON CERRAR SUPERIOR DERECHO (CORREGIDO) ---
         btnCerrar = new Button();
-        btnCerrar.Text = "\u2715"; // X limpia
-        btnCerrar.Font = new Font("Segoe UI", 12, FontStyle.Regular);
+        btnCerrar.Text = "\u2715"; // X
+        btnCerrar.Font = new Font("Segoe UI", 11, FontStyle.Bold);
         btnCerrar.Size = new Size(45, 30);
+        // Pegado a la esquina superior derecha
         btnCerrar.Location = new Point(mainContent.Width - 45, 0); 
         btnCerrar.FlatStyle = FlatStyle.Flat;
         btnCerrar.FlatAppearance.BorderSize = 0;
-        btnCerrar.ForeColor = Color.Gray;
-        btnCerrar.BackColor = cFondo; 
         
-        // Efecto Hover Rojo
+        // Colores pedidos: Morado (Logo) -> Rojo al pasar
+        btnCerrar.BackColor = cLeedeo; 
+        btnCerrar.ForeColor = Color.White;
+        
         btnCerrar.FlatAppearance.MouseOverBackColor = Color.Red; 
         btnCerrar.FlatAppearance.MouseDownBackColor = Color.DarkRed;
-        btnCerrar.MouseEnter += (s, e) => btnCerrar.ForeColor = Color.White; 
-        btnCerrar.MouseLeave += (s, e) => btnCerrar.ForeColor = Color.Gray;  
         
         btnCerrar.Click += (s, e) => Application.Exit();
         mainContent.Controls.Add(btnCerrar);
@@ -188,7 +192,6 @@ public class LimpiadorApp : Form
     // --- LOGICA ---
     private async void Ejecutar(int nivel)
     {
-        // 1. CONFIRMACIÓN PREVIA
         string tituloConfirm = "";
         string msgConfirm = "";
 
@@ -204,11 +207,20 @@ public class LimpiadorApp : Form
             tituloConfirm = "Confirmar Reparación de Sistema";
             msgConfirm = "ATENCIÓN: Este proceso es exhaustivo y puede tardar entre 20 y 30 minutos.\n\n¿Quieres comenzar el diagnóstico y reparación?";
         }
+        else if (nivel == 4) {
+            tituloConfirm = "Actualizar Aplicaciones";
+            msgConfirm = "Esta función usará 'Winget' para buscar y actualizar todos los programas instalados en tu PC.\n\nSe abrirá una ventana externa para mostrar el progreso de descarga.\n¿Deseas continuar?";
+        }
 
         if (MessageBox.Show(msgConfirm, tituloConfirm, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No) return;
 
-        // 2. INICIO
-        btnNormal.Enabled = false; btnDeep.Enabled = false; btnRepair.Enabled = false; btnCerrar.Enabled = false;
+        // Winget es especial
+        if (nivel == 4) {
+            EjecutarWinget();
+            return;
+        }
+
+        btnNormal.Enabled = false; btnDeep.Enabled = false; btnRepair.Enabled = false; btnUpdate.Enabled = false; btnCerrar.Enabled = false;
         txtLog.Clear();
 
         long espacioInicio = ObtenerEspacioLibre();
@@ -246,48 +258,34 @@ public class LimpiadorApp : Form
             Log("Iniciando diagnóstico...");
             Log("");
 
-            // 1. DISCO
             Log("[1/6] Analizando salud del Disco (CHKDSK)..."); 
             string resDisco = await CmdCapturar("chkdsk C: /scan");
             
-            if (resDisco.Contains("no ha encontrado problemas") || resDisco.Contains("found no problems"))
-            {
+            if (resDisco.Contains("no ha encontrado problemas") || resDisco.Contains("found no problems")) {
                 Log("   ✅ ESTADO DISCO: Sano. Sin errores físicos.");
-            }
-            else
-            {
+            } else {
                 Log("   ⚠️ ESTADO DISCO: Se detectaron anomalías.");
-                DialogResult preg = MessageBox.Show(
-                    "Leedeo Cleaner ha detectado errores en tu disco.\n\nWindows no puede repararlos mientras se usa.\n¿Deseas programar una reparación automática para el próximo reinicio?", 
-                    "Errores de Disco Detectados", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-
-                if (preg == DialogResult.Yes)
-                {
+                if (MessageBox.Show("Se han detectado errores en el disco. ¿Programar reparación al reiniciar?", "Error Disco", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes) {
                     await Cmd("fsutil dirty set C:");
-                    Log("   --> Reparación programada. Se ejecutará al reiniciar Windows.");
-                    MessageBox.Show("Listo. La reparación se iniciará automáticamente la próxima vez que reinicies el PC.", "Programado");
+                    Log("   --> Reparación programada.");
+                    MessageBox.Show("Reparación programada para el próximo reinicio.", "Listo");
                 }
-                else { Log("   --> El usuario omitió la reparación de disco."); }
             }
 
-            // 2. ARCHIVOS SFC
             Log("[2/6] Verificando integridad de archivos (SFC)...");
             string resSfc = await CmdCapturar("sfc /scannow");
             if (resSfc.Contains("did not find any integrity") || resSfc.Contains("no encontró ninguna infracción"))
-                Log("   ✅ ESTADO ARCHIVOS: Integridad verificada. Todo correcto.");
+                Log("   ✅ ESTADO ARCHIVOS: Integridad verificada.");
             else if (resSfc.Contains("successfully repaired") || resSfc.Contains("reparó correctamente"))
-                Log("   🛠️ ESTADO ARCHIVOS: Se encontraron errores y FUERON REPARADOS.");
+                Log("   🛠️ ESTADO ARCHIVOS: Errores reparados.");
             else
-                Log("   ❌ ESTADO ARCHIVOS: Errores complejos. DISM intentará repararlos ahora...");
+                Log("   ❌ ESTADO ARCHIVOS: Errores complejos. Ejecutando DISM...");
 
-            // 3. IMAGEN DISM
             Log("[3/6] DISM ScanHealth...");
             await Cmd("DISM.exe /Online /Cleanup-Image /ScanHealth");
-            
             Log("[4/6] DISM CheckHealth...");
             await Cmd("DISM.exe /Online /Cleanup-Image /CheckHealth");
-            
-            Log("[5/6] DISM RestoreHealth (Reparando Imagen)...");
+            Log("[5/6] DISM RestoreHealth...");
             string resDism = await CmdCapturar("DISM.exe /Online /Cleanup-Image /RestoreHealth");
             if (resDism.Contains("successfully") || resDism.Contains("correctamente"))
                 Log("   ✅ ESTADO IMAGEN: Restauración completada.");
@@ -310,10 +308,48 @@ public class LimpiadorApp : Form
         
         MessageBox.Show("Operación completada con éxito.\n\nEspacio recuperado: " + textoLiberado, "Leedeo Cleaner");
         
-        btnNormal.Enabled = true; btnDeep.Enabled = true; btnRepair.Enabled = true; btnCerrar.Enabled = true;
+        btnNormal.Enabled = true; btnDeep.Enabled = true; btnRepair.Enabled = true; btnUpdate.Enabled = true; btnCerrar.Enabled = true;
     }
 
-    // --- FUNCIONES ---
+    // --- LOGICA WINGET CORREGIDA ---
+    private async void EjecutarWinget()
+    {
+        txtLog.AppendText("\r\n>>> ⚡ INICIANDO ACTUALIZACIÓN DE APPS...\r\n");
+        txtLog.AppendText("Buscando ejecutable de Winget...\r\n");
+        
+        string rutaWinget = "";
+        string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        string posibleRuta = localAppData + @"\Microsoft\WindowsApps\winget.exe";
+
+        if (File.Exists(posibleRuta)) {
+            rutaWinget = posibleRuta;
+        } else {
+            string check = await CmdCapturar("where winget");
+            if (!check.Contains("no se pudo") && check.Length > 2) rutaWinget = "winget";
+        }
+
+        if (string.IsNullOrEmpty(rutaWinget))
+        {
+            MessageBox.Show("No se ha podido localizar 'winget.exe'.\n\nAsegúrate de tener actualizado el 'Instalador de aplicación' desde la Microsoft Store.", "Winget no encontrado", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            txtLog.AppendText("❌ Error: Ejecutable no encontrado.\r\n");
+            return;
+        }
+
+        txtLog.AppendText("✅ Winget localizado. Lanzando actualizador...\r\n");
+        txtLog.AppendText("Se abrirá una ventana externa. NO la cierres hasta que termine.\r\n");
+
+        try {
+            Process p = new Process();
+            p.StartInfo.FileName = "cmd.exe";
+            p.StartInfo.Arguments = "/c \"\"" + rutaWinget + "\" upgrade --all --include-unknown --accept-source-agreements --accept-package-agreements & echo. & echo -------------------------------- & echo PROCESO FINALIZADO & pause\"";
+            p.StartInfo.UseShellExecute = true; 
+            p.Start();
+        } catch (Exception ex) {
+            MessageBox.Show("Error al lanzar: " + ex.Message);
+        }
+    }
+
+    // --- FUNCIONES AUXILIARES ---
     private async Task<string> CmdCapturar(string c) {
         return await Task.Run(() => {
             try {
@@ -398,10 +434,10 @@ public class LimpiadorApp : Form
     private void AsignarHover(Button btn, string desc) {
         btn.MouseEnter += (s, e) => {
             btn.BackColor = Color.FromArgb(45, 45, 50);
-            if(txtLog.Text.StartsWith("Sistema") || txtLog.Text.StartsWith("►") || txtLog.Text.StartsWith("≡") || txtLog.Text.StartsWith("✚")) txtLog.Text = desc;
+            if(txtLog.Text.StartsWith("Sistema") || txtLog.Text.StartsWith("►") || txtLog.Text.StartsWith("≡") || txtLog.Text.StartsWith("✚") || txtLog.Text.StartsWith("⚡")) txtLog.Text = desc;
         };
         btn.MouseLeave += (s, e) => {
-            btn.BackColor = cSidebar;
+            if (btn.Text != "\u2715") btn.BackColor = cSidebar; 
             if(txtLog.Text == desc) txtLog.Text = "Sistema listo. Esperando órdenes...";
         };
     }
@@ -422,8 +458,6 @@ public class LimpiadorApp : Form
             }
             Application.EnableVisualStyles();
             Application.Run(new LimpiadorApp());
-        } catch (Exception ex) {
-            MessageBox.Show("Error al iniciar: " + ex.Message);
-        }
+        } catch (Exception ex) { MessageBox.Show("Error: " + ex.Message); }
     }
 }
