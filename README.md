@@ -1,66 +1,71 @@
 # 🧹 Leedeo Cleaner
 
-![Version](https://img.shields.io/badge/version-1.4.0-blueviolet?style=for-the-badge)
+![Version](https://img.shields.io/badge/version-1.5.0-blueviolet?style=for-the-badge)
 ![Platform](https://img.shields.io/badge/platform-Windows_10%20%7C%2011-blue?style=for-the-badge&logo=windows)
 ![License](https://img.shields.io/badge/license-MIT-green?style=for-the-badge)
+![Languages](https://img.shields.io/badge/languages-EN%20%7C%20ES%20%7C%20PT%20%7C%20IT%20%7C%20FR%20%7C%20DE-orange?style=for-the-badge)
 
 <p align="center">
-  <img src="captura.png" alt="Interfaz de Leedeo Cleaner" width="700">
+  <img src="capture.png" alt="Leedeo Cleaner interface" width="700">
 </p>
 
-**Leedeo Cleaner** es una herramienta de mantenimiento y reparación para Windows diseñada para ser **rápida, ligera y 100% portable**. Sin instalaciones, sin publicidad y de código abierto.
+**Leedeo Cleaner** is a maintenance and repair tool for Windows designed to be **fast, lightweight and 100% portable**. No installation, no ads, open source.
 
-Elimina archivos basura, optimiza el sistema y ejecuta comandos de reparación nativos de Microsoft (SFC/DISM) con una interfaz moderna y amigable.
-
----
-
-## 🚀 Características Principales
-
-*   **⚡ Limpieza Rápida:** Borra archivos temporales (`%TEMP%`), vacía la caché de DNS y reinicia el explorador de archivos para solucionar errores visuales. Ideal para el uso diario.
-*   **🗑️ Limpieza Profunda:** Elimina logs antiguos de Windows, caché de actualizaciones (Windows Update), historial de Defender y Prefetch. Recupera espacio en disco.
-*   **🛡️ Reparación de Sistema:** Automatiza la ejecución de los comandos `SFC /SCANNOW` y `DISM` (RestoreHealth/ComponentCleanup) para arreglar archivos corruptos del sistema operativo.
-*   **💾 100% Portable:** Un solo archivo `.exe`. Llévalo en tu USB.
-*   **🔍 Transparente:** Código abierto bajo licencia MIT. Nada oculto.
+It removes junk files, optimizes the system and runs Microsoft's native repair commands (SFC/DISM) through a clean, modern interface. The language is automatically detected from your OS — English, Spanish, Portuguese, Italian, French and German are supported.
 
 ---
 
-## 📥 Descarga e Instalación
+## 🚀 Features
 
-Puedes descargar la última versión compilada desde la sección de **Releases**:
+- **⚡ Quick Clean** — Deletes temp files (`%TEMP%`), flushes the DNS cache and restarts Explorer to fix visual glitches. Good for daily use.
+- **🗑️ Deep Clean** — Removes old Windows logs, Windows Update cache, Defender history and Prefetch. Recovers disk space.
+- **🛡️ System Repair** — Runs `CHKDSK`, `SFC /SCANNOW` and `DISM` (ScanHealth / CheckHealth / RestoreHealth / ComponentCleanup) in the correct order, with smart result detection at each step.
+- **📦 Update Apps** — Uses Winget to list available updates and lets you review before installing anything.
+- **💾 Export log** — Save the full output of any operation as a `.txt` file.
+- **🌍 6 languages** — Switch between EN, ES, PT, IT, FR and DE at any time using the flag buttons in the sidebar.
+- **🔍 Portable & transparent** — Single `.exe` file. No installer, no telemetry. MIT licensed.
 
-👉 **[Descargar Leedeo Cleaner](https://github.com/Leedeo/Leedeo-Cleaner/releases/latest)**
+---
 
-> **⚠️ Nota sobre Windows Defender / SmartScreen:**
-> Al ser una aplicación nueva y creada por un desarrollador independiente (no firmada digitalmente), es posible que Windows muestre una advertencia azul diciendo "Windows protegió su PC".
+## 📥 Download
+
+The latest compiled release is always available here:
+
+👉 **[Download Leedeo Cleaner](https://github.com/Leedeo/Leedeo-Cleaner/releases/latest)**
+
+> **⚠️ Windows Defender / SmartScreen notice**
 >
-> Esto es normal en software open-source nuevo. Para usarla, simplemente haz clic en **"Más información"** y luego en **"Ejecutar de todas formas"**.
+> Because this is an independently developed app without a digital signature, Windows may show a blue warning screen saying "Windows protected your PC". This is a false positive caused by the file not yet having enough reputation with Microsoft's systems — it is not a virus.
+>
+> To run it: click **"More info"** → **"Run anyway"**.
 
 ---
 
-## 🛠️ Cómo compilarlo tú mismo (Opcional)
+## 🛠️ Build it yourself
 
-Si prefieres compilar el código fuente por tu cuenta para máxima seguridad:
+If you prefer to compile from source for maximum peace of mind:
 
-1.  Descarga este repositorio (botón `Code` > `Download ZIP`).
-2.  Asegúrate de tener los archivos `logo.png`, `icono.ico` y los botones PNG en la misma carpeta.
-3.  Ejecuta el archivo **`Compilar.bat`**.
-4.  El script utilizará el compilador nativo de .NET Framework de tu Windows para generar `LeedeoCleaner.exe`.
+1. Download this repository (`Code` → `Download ZIP`).
+2. Make sure all assets are in the same folder: `logo.png`, `icon.ico`, `btn_quick.png`, `btn_deep.png`, `btn_repair.png`, `btn_update.png` and the six flag PNGs (`flag_en.png` … `flag_de.png`).
+3. Run **`build.bat`**.
+4. The script will use the .NET Framework compiler already present on your Windows installation to produce `LeedeoCleaner.exe`.
 
----
-
-## ⚠️ Responsabilidad (Disclaimer)
-
-Este software se proporciona "tal cual", sin garantía de ningún tipo.
-Aunque **Leedeo Cleaner** utiliza comandos estándar y seguros de Windows, el uso de herramientas de limpieza y reparación conlleva riesgos inherentes. **Leedeo Studio no se hace responsable** de posibles pérdidas de datos o daños en el sistema derivados del uso de esta herramienta. Se recomienda usar la opción "Reparar Sistema" solo si tienes conocimientos básicos o si tu PC presenta fallos.
+> Requires .NET Framework 4.x (included in Windows 10 and 11 by default).
 
 ---
 
-## ☕ Apoya el proyecto
+## ⚠️ Disclaimer
 
-Si esta herramienta te ha sido útil y quieres apoyar el desarrollo de más software gratuito:
-
-[![Ko-fi](https://img.shields.io/badge/Apoyar_en_Ko--fi-F16061?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/leedeo)
+This software is provided as-is, without warranty of any kind. Leedeo Cleaner uses standard Windows commands, but cleaning and repair operations carry inherent risks. **Leedeo Studio is not responsible** for any data loss or system damage resulting from the use of this tool. It is recommended to use the System Repair option only if your PC is showing actual issues.
 
 ---
 
-**Creado con ❤️ por [Leedeo Studio](https://www.youtube.com/@Leedeo).**
+## ☕ Support the project
+
+If this tool saved you time, consider buying me a coffee:
+
+[![Ko-fi](https://img.shields.io/badge/Support_on_Ko--fi-F16061?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/leedeo)
+
+---
+
+**Made with ❤️ by [Leedeo Studio](https://www.youtube.com/@Leedeo).**
