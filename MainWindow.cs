@@ -490,8 +490,8 @@ public class MainWindow : Form
         // Using exit code is more reliable than parsing text because CHKDSK
         // writes to stderr and its phrasing varies by Windows language and build.
         Log(Strings.Get("log_rep_chk"));
-        int chkdskExit = await CmdExitCode("chkdsk C: /scan");
-        if (chkdskExit == 0)
+        CmdResult chkdsk = await CmdRun("chkdsk C: /scan");
+        if (chkdsk.ExitCode == 0)
         {
             Log(Strings.Get("log_rep_chk_ok"));
         }
@@ -507,32 +507,28 @@ public class MainWindow : Form
             }
         }
 
-        // [2/6] SFC — exit code 0 means no violations found OR violations were repaired.
-        // To distinguish between the two we still check the output text, but now with
-        // stderr captured too the text is actually available. Exit code != 0 means
-        // SFC found problems it could not fix on its own.
+        // [2/6] SFC — single execution via CmdRun gives us exit code and output together.
+        // Exit code != 0 means SFC found problems it could not fix.
+        // Exit code 0 + "repaired" text means it fixed something.
+        // Exit code 0 + no repair text means the system was already clean.
         Log(Strings.Get("log_rep_sfc"));
-        int    sfcExit   = await CmdExitCode("sfc /scannow");
-        string sfcResult = await CmdCapture("sfc /scannow");
+        CmdResult sfc = await CmdRun("sfc /scannow");
 
-        if (sfcExit != 0)
+        if (sfc.ExitCode != 0)
         {
-            // SFC could not repair everything — hand off to DISM
             Log(Strings.Get("log_rep_sfc_err"));
         }
-        else if (sfcResult.Contains("successfully repaired") ||
-                 sfcResult.Contains("reparó correctamente")  ||
-                 sfcResult.Contains("riparati")              ||
-                 sfcResult.Contains("réparés")               ||
-                 sfcResult.Contains("erfolgreich repariert") ||
-                 sfcResult.Contains("reparados com êxito"))
+        else if (sfc.Output.Contains("successfully repaired") ||
+                 sfc.Output.Contains("reparó correctamente")  ||
+                 sfc.Output.Contains("riparati")              ||
+                 sfc.Output.Contains("réparés")               ||
+                 sfc.Output.Contains("erfolgreich repariert") ||
+                 sfc.Output.Contains("reparados com êxito"))
         {
-            // Exit 0 but repairs were made
             Log(Strings.Get("log_rep_sfc_fixed"));
         }
         else
         {
-            // Exit 0 and no repairs — system is clean
             Log(Strings.Get("log_rep_sfc_ok"));
         }
 
@@ -543,8 +539,8 @@ public class MainWindow : Form
         await Cmd("DISM.exe /Online /Cleanup-Image /CheckHealth >nul 2>&1");
 
         Log(Strings.Get("log_rep_restore"));
-        int dismExit = await CmdExitCode("DISM.exe /Online /Cleanup-Image /RestoreHealth");
-        if (dismExit == 0)
+        CmdResult dism = await CmdRun("DISM.exe /Online /Cleanup-Image /RestoreHealth");
+        if (dism.ExitCode == 0)
             Log(Strings.Get("log_rep_rest_ok"));
         else
             Log(Strings.Get("log_rep_rest_warn"));
@@ -570,11 +566,8 @@ public class MainWindow : Form
         }
         else
         {
-            // Fallback: check if winget is available on PATH.
-            // We only verify the output has content — no text parsing,
-            // because "where" error messages vary by OS language.
-            string check = await CmdCapture("where winget");
-            if (check.Trim().Length > 4)
+            CmdResult where = await CmdRun("where winget");
+            if (where.ExitCode == 0 && where.Output.Trim().Length > 4)
                 wingetPath = "winget";
         }
 
@@ -688,10 +681,12 @@ public class MainWindow : Form
         });
     }
 
-    // Runs a command and returns both stdout and stderr merged.
-    // Some tools (including CHKDSK and SFC) write their output to stderr,
-    // so capturing only stdout would return an empty string on those commands.
-    private async Task<string> CmdCapture(string command)
+    // Runs a command and returns both its exit code and merged stdout+stderr output.
+    // Using a single execution avoids the inconsistency of running the same command
+    // twice to get exit code and text separately (as was the case with SFC).
+    private struct CmdResult { public int ExitCode; public string Output; }
+
+    private async Task<CmdResult> CmdRun(string command)
     {
         return await Task.Run(() =>
         {
@@ -713,37 +708,10 @@ public class MainWindow : Form
                     string stdout = p.StandardOutput.ReadToEnd();
                     string stderr = p.StandardError.ReadToEnd();
                     p.WaitForExit();
-                    return stdout + stderr;
+                    return new CmdResult { ExitCode = p.ExitCode, Output = stdout + stderr };
                 }
             }
-            catch { return string.Empty; }
-        });
-    }
-
-    // Runs a command and returns its exit code.
-    // More reliable than parsing output text for tools that use exit codes correctly.
-    private async Task<int> CmdExitCode(string command)
-    {
-        return await Task.Run(() =>
-        {
-            try
-            {
-                using (var p = new Process())
-                {
-                    p.StartInfo = new ProcessStartInfo
-                    {
-                        FileName        = "cmd.exe",
-                        Arguments       = "/c " + command,
-                        CreateNoWindow  = true,
-                        UseShellExecute = false,
-                        WindowStyle     = ProcessWindowStyle.Hidden
-                    };
-                    p.Start();
-                    p.WaitForExit();
-                    return p.ExitCode;
-                }
-            }
-            catch { return -1; }
+            catch { return new CmdResult { ExitCode = -1, Output = string.Empty }; }
         });
     }
 
