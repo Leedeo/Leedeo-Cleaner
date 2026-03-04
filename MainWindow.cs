@@ -507,24 +507,34 @@ public class MainWindow : Form
             }
         }
 
-        // [2/6] SFC — stderr is now captured too, so the output contains the actual result text.
+        // [2/6] SFC — exit code 0 means no violations found OR violations were repaired.
+        // To distinguish between the two we still check the output text, but now with
+        // stderr captured too the text is actually available. Exit code != 0 means
+        // SFC found problems it could not fix on its own.
         Log(Strings.Get("log_rep_sfc"));
+        int    sfcExit   = await CmdExitCode("sfc /scannow");
         string sfcResult = await CmdCapture("sfc /scannow");
-        if (sfcResult.Contains("did not find any integrity") ||
-            sfcResult.Contains("no encontró ninguna infracción") ||
-            sfcResult.Contains("no ha encontrado infracciones") ||
-            sfcResult.Contains("non ha rilevato") ||
-            sfcResult.Contains("n'a détecté aucune") ||
-            sfcResult.Contains("hat keine Integritätsverletzungen"))
-            Log(Strings.Get("log_rep_sfc_ok"));
-        else if (sfcResult.Contains("successfully repaired") ||
-                 sfcResult.Contains("reparó correctamente") ||
-                 sfcResult.Contains("riparati") ||
-                 sfcResult.Contains("réparés") ||
-                 sfcResult.Contains("erfolgreich repariert"))
-            Log(Strings.Get("log_rep_sfc_fixed"));
-        else
+
+        if (sfcExit != 0)
+        {
+            // SFC could not repair everything — hand off to DISM
             Log(Strings.Get("log_rep_sfc_err"));
+        }
+        else if (sfcResult.Contains("successfully repaired") ||
+                 sfcResult.Contains("reparó correctamente")  ||
+                 sfcResult.Contains("riparati")              ||
+                 sfcResult.Contains("réparés")               ||
+                 sfcResult.Contains("erfolgreich repariert") ||
+                 sfcResult.Contains("reparados com êxito"))
+        {
+            // Exit 0 but repairs were made
+            Log(Strings.Get("log_rep_sfc_fixed"));
+        }
+        else
+        {
+            // Exit 0 and no repairs — system is clean
+            Log(Strings.Get("log_rep_sfc_ok"));
+        }
 
         Log(Strings.Get("log_rep_scan"));
         await Cmd("DISM.exe /Online /Cleanup-Image /ScanHealth >nul 2>&1");
@@ -533,8 +543,8 @@ public class MainWindow : Form
         await Cmd("DISM.exe /Online /Cleanup-Image /CheckHealth >nul 2>&1");
 
         Log(Strings.Get("log_rep_restore"));
-        string dismResult = await CmdCapture("DISM.exe /Online /Cleanup-Image /RestoreHealth");
-        if (dismResult.Contains("successfully") || dismResult.Contains("correctamente"))
+        int dismExit = await CmdExitCode("DISM.exe /Online /Cleanup-Image /RestoreHealth");
+        if (dismExit == 0)
             Log(Strings.Get("log_rep_rest_ok"));
         else
             Log(Strings.Get("log_rep_rest_warn"));
@@ -560,8 +570,11 @@ public class MainWindow : Form
         }
         else
         {
+            // Fallback: check if winget is available on PATH.
+            // We only verify the output has content — no text parsing,
+            // because "where" error messages vary by OS language.
             string check = await CmdCapture("where winget");
-            if (!check.Contains("no se pudo") && check.Length > 2)
+            if (check.Trim().Length > 4)
                 wingetPath = "winget";
         }
 
