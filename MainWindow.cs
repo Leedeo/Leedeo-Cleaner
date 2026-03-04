@@ -486,9 +486,12 @@ public class MainWindow : Form
         Log(Strings.Get("log_rep_diag"));
         Log("");
 
+        // [1/6] CHKDSK — exit code 0 = clean, anything else = issues found.
+        // Using exit code is more reliable than parsing text because CHKDSK
+        // writes to stderr and its phrasing varies by Windows language and build.
         Log(Strings.Get("log_rep_chk"));
-        string diskResult = await CmdCapture("chkdsk C: /scan");
-        if (diskResult.Contains("no ha encontrado problemas") || diskResult.Contains("found no problems"))
+        int chkdskExit = await CmdExitCode("chkdsk C: /scan");
+        if (chkdskExit == 0)
         {
             Log(Strings.Get("log_rep_chk_ok"));
         }
@@ -504,11 +507,21 @@ public class MainWindow : Form
             }
         }
 
+        // [2/6] SFC — stderr is now captured too, so the output contains the actual result text.
         Log(Strings.Get("log_rep_sfc"));
         string sfcResult = await CmdCapture("sfc /scannow");
-        if (sfcResult.Contains("did not find any integrity") || sfcResult.Contains("no encontró ninguna infracción"))
+        if (sfcResult.Contains("did not find any integrity") ||
+            sfcResult.Contains("no encontró ninguna infracción") ||
+            sfcResult.Contains("no ha encontrado infracciones") ||
+            sfcResult.Contains("non ha rilevato") ||
+            sfcResult.Contains("n'a détecté aucune") ||
+            sfcResult.Contains("hat keine Integritätsverletzungen"))
             Log(Strings.Get("log_rep_sfc_ok"));
-        else if (sfcResult.Contains("successfully repaired") || sfcResult.Contains("reparó correctamente"))
+        else if (sfcResult.Contains("successfully repaired") ||
+                 sfcResult.Contains("reparó correctamente") ||
+                 sfcResult.Contains("riparati") ||
+                 sfcResult.Contains("réparés") ||
+                 sfcResult.Contains("erfolgreich repariert"))
             Log(Strings.Get("log_rep_sfc_fixed"));
         else
             Log(Strings.Get("log_rep_sfc_err"));
@@ -662,6 +675,9 @@ public class MainWindow : Form
         });
     }
 
+    // Runs a command and returns both stdout and stderr merged.
+    // Some tools (including CHKDSK and SFC) write their output to stderr,
+    // so capturing only stdout would return an empty string on those commands.
     private async Task<string> CmdCapture(string command)
     {
         return await Task.Run(() =>
@@ -677,15 +693,44 @@ public class MainWindow : Form
                         CreateNoWindow         = true,
                         UseShellExecute        = false,
                         RedirectStandardOutput = true,
+                        RedirectStandardError  = true,
                         WindowStyle            = ProcessWindowStyle.Hidden
                     };
                     p.Start();
-                    string output = p.StandardOutput.ReadToEnd();
+                    string stdout = p.StandardOutput.ReadToEnd();
+                    string stderr = p.StandardError.ReadToEnd();
                     p.WaitForExit();
-                    return output;
+                    return stdout + stderr;
                 }
             }
             catch { return string.Empty; }
+        });
+    }
+
+    // Runs a command and returns its exit code.
+    // More reliable than parsing output text for tools that use exit codes correctly.
+    private async Task<int> CmdExitCode(string command)
+    {
+        return await Task.Run(() =>
+        {
+            try
+            {
+                using (var p = new Process())
+                {
+                    p.StartInfo = new ProcessStartInfo
+                    {
+                        FileName        = "cmd.exe",
+                        Arguments       = "/c " + command,
+                        CreateNoWindow  = true,
+                        UseShellExecute = false,
+                        WindowStyle     = ProcessWindowStyle.Hidden
+                    };
+                    p.Start();
+                    p.WaitForExit();
+                    return p.ExitCode;
+                }
+            }
+            catch { return -1; }
         });
     }
 
