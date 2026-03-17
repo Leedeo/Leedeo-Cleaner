@@ -1,11 +1,11 @@
 @echo off
 cd /d "%~dp0"
 color 0A
-title Building Leedeo Cleaner v1.5...
+title Building Leedeo Cleaner v1.6...
 echo.
 
 :: =============================================================================
-::  Leedeo Cleaner v1.5 - Build script
+::  Leedeo Cleaner v1.6 - Build script
 ::  Requires .NET Framework 4.x (64-bit) to be installed.
 :: =============================================================================
 
@@ -33,7 +33,8 @@ if not exist "icon.ico"       ( echo    [MISSING] icon.ico       & set "missing=
 if not exist "btn_quick.png"  ( echo    [MISSING] btn_quick.png  & set "missing=1" )
 if not exist "btn_deep.png"   ( echo    [MISSING] btn_deep.png   & set "missing=1" )
 if not exist "btn_repair.png" ( echo    [MISSING] btn_repair.png & set "missing=1" )
-if not exist "btn_update.png" ( echo    [MISSING] btn_update.png & set "missing=1" )
+if not exist "btn_update.png"    ( echo    [MISSING] btn_update.png    & set "missing=1" )
+if not exist "btn_registry.png" ( echo    [MISSING] btn_registry.png & set "missing=1" )
 if not exist "flag_en.png"    ( echo    [MISSING] flag_en.png    & set "missing=1" )
 if not exist "flag_es.png"    ( echo    [MISSING] flag_es.png    & set "missing=1" )
 if not exist "flag_pt.png"    ( echo    [MISSING] flag_pt.png    & set "missing=1" )
@@ -54,9 +55,10 @@ echo    All assets found. OK
 echo.
 
 :: 3. COMPILE
-echo [Building v1.5...]
+echo [Building v1.6...]
 
 "%csc%" /target:winexe ^
+        /platform:anycpu ^
         /out:"LeedeoCleaner.exe" ^
         /win32icon:"icon.ico" ^
         /resource:logo.png,App.logo.png ^
@@ -65,6 +67,7 @@ echo [Building v1.5...]
         /resource:btn_deep.png,App.btn_deep.png ^
         /resource:btn_repair.png,App.btn_repair.png ^
         /resource:btn_update.png,App.btn_update.png ^
+        /resource:btn_registry.png,App.btn_registry.png ^
         /resource:flag_en.png,App.flag_en.png ^
         /resource:flag_es.png,App.flag_es.png ^
         /resource:flag_pt.png,App.flag_pt.png ^
@@ -79,7 +82,7 @@ echo.
 if %errorlevel% == 0 (
     color 0A
     echo ============================================================
-    echo  [SUCCESS] LeedeoCleaner.exe v1.5 built successfully.
+    echo  [SUCCESS] LeedeoCleaner.exe v1.6 built successfully.
     echo ============================================================
 ) else (
     color 0C

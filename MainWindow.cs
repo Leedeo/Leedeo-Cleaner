@@ -9,7 +9,7 @@ using Microsoft.Win32;
 using System.Reflection;
 
 // =============================================================================
-// MainWindow.cs - Leedeo Cleaner v1.5
+// MainWindow.cs - Leedeo Cleaner v1.6
 // Multi-language support via Strings.cs (EN, ES, PT, IT, FR, DE).
 // Language is auto-detected from the OS on startup and can be changed at any
 // time using the flag buttons at the bottom of the sidebar.
@@ -20,8 +20,8 @@ using System.Reflection;
 [assembly: AssemblyCompany("Leedeo Studio")]
 [assembly: AssemblyProduct("Leedeo Cleaner")]
 [assembly: AssemblyCopyright("Copyright © 2025 Leedeo Studio")]
-[assembly: AssemblyVersion("1.5.0.0")]
-[assembly: AssemblyFileVersion("1.5.0.0")]
+[assembly: AssemblyVersion("1.6.0.0")]
+[assembly: AssemblyFileVersion("1.6.0.0")]
 
 public class MainWindow : Form
 {
@@ -39,13 +39,15 @@ public class MainWindow : Form
     private readonly Color cDivider      = Color.FromArgb(45, 45, 48);
     private readonly Color cTextDim      = Color.FromArgb(130, 130, 140);
 
+    private readonly Color cBtnRegistry  = Color.FromArgb(100, 80, 160);    // muted purple, distinct from brand
+
     // ── Controls ──────────────────────────────────────────────────────────────
     private Panel      sidebar, mainContent;
     private PictureBox logo;
     private Label      lblTitle, lblVersion, lblSystemInfo, lblDonate;
     private LinkLabel  linkKofi;
     private TextBox    txtLog;
-    private Button     btnQuick, btnDeep, btnRepair, btnUpdate, btnClose, btnSaveLog;
+    private Button     btnQuick, btnDeep, btnRepair, btnUpdate, btnRegistry, btnClose, btnSaveLog;
 
     // Flag buttons — one per supported language
     private Button btnFlagEn, btnFlagEs, btnFlagPt, btnFlagIt, btnFlagFr, btnFlagDe;
@@ -96,82 +98,86 @@ public class MainWindow : Form
         sidebar.MouseUp   += OnMouseUp;
         Controls.Add(sidebar);
 
-        // App logo
+        // App logo — reduced from 80 to 65px to recover vertical space for the 5th button
         logo = new PictureBox
         {
-            Size     = new Size(160, 80),
-            Location = new Point(40, 20),
+            Size     = new Size(150, 65),
+            Location = new Point(45, 14),
             SizeMode = PictureBoxSizeMode.Zoom,
             Image    = LoadImage("App.logo.png")
         };
         sidebar.Controls.Add(logo);
 
-        // App title — Semibold instead of Bold for a less heavy feel
+        // App title
         lblTitle = new Label
         {
             Text      = "LEEDEO\nCLEANER",
             Font      = new Font("Segoe UI Semibold", 13, FontStyle.Regular),
             ForeColor = Color.White,
-            Location  = new Point(20, 110),
-            Size      = new Size(200, 52),
+            Location  = new Point(20, 88),
+            Size      = new Size(200, 48),
             TextAlign = ContentAlignment.MiddleCenter
         };
         sidebar.Controls.Add(lblTitle);
 
-        // Version label — dimmer, smaller, more refined
+        // Version label
         lblVersion = new Label
         {
-            Text      = "v1.5",
+            Text      = "v1.6",
             Font      = new Font("Segoe UI", 8, FontStyle.Regular),
             ForeColor = cTextDim,
-            Location  = new Point(20, 163),
-            Size      = new Size(200, 20),
+            Location  = new Point(20, 137),
+            Size      = new Size(200, 18),
             TextAlign = ContentAlignment.TopCenter
         };
         sidebar.Controls.Add(lblVersion);
 
-        // Thin divider line between header and menu buttons
+        // Thin divider between header and menu buttons
         var dividerTop = new Panel
         {
-            Location  = new Point(20, 188),
+            Location  = new Point(20, 160),
             Size      = new Size(200, 1),
             BackColor = cDivider
         };
         sidebar.Controls.Add(dividerTop);
 
-        // Menu buttons — shifted down to sit below the new divider
-        btnQuick  = CreateMenuButton(Strings.Get("btn_quick"),  "App.btn_quick.png",  200, cBtnQuick);
-        btnDeep   = CreateMenuButton(Strings.Get("btn_deep"),   "App.btn_deep.png",   252, cBtnDeep);
-        btnRepair = CreateMenuButton(Strings.Get("btn_repair"), "App.btn_repair.png", 304, cBtnRepair);
-        btnUpdate = CreateMenuButton(Strings.Get("btn_update"), "App.btn_update.png", 356, cBtnUpdate);
+        // Menu buttons — grouped by category: cleaning, repair, updates
+        // Quick(168) → Deep(212) → Registry(256) → Repair(300) → Update(344)
+        btnQuick    = CreateMenuButton(Strings.Get("btn_quick"),    "App.btn_quick.png",    168, cBtnQuick);
+        btnDeep     = CreateMenuButton(Strings.Get("btn_deep"),     "App.btn_deep.png",     212, cBtnDeep);
+        btnRegistry = CreateMenuButton(Strings.Get("btn_registry"), "App.btn_registry.png", 256, cBtnRegistry);
+        btnRepair   = CreateMenuButton(Strings.Get("btn_repair"),   "App.btn_repair.png",   300, cBtnRepair);
+        btnUpdate   = CreateMenuButton(Strings.Get("btn_update"),   "App.btn_update.png",   344, cBtnUpdate);
 
-        // Pass the key, not the translated string — AssignHover resolves it at event time
-        AssignHover(btnQuick,  "hover_quick");
-        AssignHover(btnDeep,   "hover_deep");
-        AssignHover(btnRepair, "hover_repair");
-        AssignHover(btnUpdate, "hover_update");
+        AssignHover(btnQuick,    "hover_quick");
+        AssignHover(btnDeep,     "hover_deep");
+        AssignHover(btnRegistry, "hover_registry");
+        AssignHover(btnRepair,   "hover_repair");
+        AssignHover(btnUpdate,   "hover_update");
 
-        btnQuick.Click  += (s, e) => Run(1);
-        btnDeep.Click   += (s, e) => Run(2);
-        btnRepair.Click += (s, e) => Run(3);
-        btnUpdate.Click += (s, e) => Run(4);
+        btnQuick.Click    += (s, e) => Run(1);
+        btnDeep.Click     += (s, e) => Run(2);
+        btnRegistry.Click += (s, e) => Run(5);
+        btnRepair.Click   += (s, e) => Run(3);
+        btnUpdate.Click   += (s, e) => Run(4);
 
         sidebar.Controls.Add(btnQuick);
         sidebar.Controls.Add(btnDeep);
+        sidebar.Controls.Add(btnRegistry);
         sidebar.Controls.Add(btnRepair);
         sidebar.Controls.Add(btnUpdate);
 
         // Thin divider between menu buttons and language flags
         var dividerBottom = new Panel
         {
-            Location  = new Point(20, 414),
+            Location  = new Point(20, 396),
             Size      = new Size(200, 1),
             BackColor = cDivider
         };
         sidebar.Controls.Add(dividerBottom);
 
         // ── Language flag buttons (bottom of sidebar) ─────────────────────────
-        int flagY       = 430;
+        int flagY       = 412;
         int flagSize    = 24;
         int flagSpacing = 4;
         int totalWidth  = (flagSize * 6) + (flagSpacing * 5);   // 164px
@@ -284,18 +290,18 @@ public class MainWindow : Form
         };
         mainContent.Controls.Add(logDivider);
 
-        // Terminal-style log area — deeper background, softer green
+        // Terminal-style log area — scroll bar visible when content overflows
         txtLog = new TextBox
         {
-            Multiline   = true,
-            ReadOnly    = true,
-            BackColor   = cLogBg,
-            ForeColor   = cLogText,
-            Font        = new Font("Consolas", 9),
-            BorderStyle = BorderStyle.None,
-            Location    = new Point(30, 118),
-            Size        = new Size(480, 332),
-            Text        = Strings.Get("log_ready")
+            Multiline    = true,
+            ReadOnly     = true,
+            BackColor    = cLogBg,
+            ForeColor    = cLogText,
+            Font         = new Font("Consolas", 9),
+            BorderStyle  = BorderStyle.None,
+            Location     = new Point(30, 118),
+            Size         = new Size(480, 332),
+            Text         = Strings.Get("log_ready")
         };
         mainContent.Controls.Add(txtLog);
 
@@ -329,10 +335,11 @@ public class MainWindow : Form
         Strings.LoadLanguage(lang);
 
         // Menu button labels (hover handlers don't need updating — they use keys)
-        btnQuick.Text  = "  " + Strings.Get("btn_quick");
-        btnDeep.Text   = "  " + Strings.Get("btn_deep");
-        btnRepair.Text = "  " + Strings.Get("btn_repair");
-        btnUpdate.Text = "  " + Strings.Get("btn_update");
+        btnQuick.Text    = "  " + Strings.Get("btn_quick");
+        btnDeep.Text     = "  " + Strings.Get("btn_deep");
+        btnRepair.Text   = "  " + Strings.Get("btn_repair");
+        btnUpdate.Text   = "  " + Strings.Get("btn_update");
+        btnRegistry.Text = "  " + Strings.Get("btn_registry");
 
         // Right panel labels
         lblDonate.Text     = Strings.Get("lbl_donate");
@@ -387,6 +394,7 @@ public class MainWindow : Form
             case 2: title = Strings.Get("confirm_dc_title");  message = Strings.Get("confirm_dc_msg");  break;
             case 3: title = Strings.Get("confirm_rep_title"); message = Strings.Get("confirm_rep_msg"); break;
             case 4: title = Strings.Get("confirm_upd_title"); message = Strings.Get("confirm_upd_msg"); break;
+            case 5: title = Strings.Get("confirm_reg_title"); message = Strings.Get("confirm_reg_msg"); break;
             default: return;
         }
 
@@ -394,11 +402,12 @@ public class MainWindow : Form
             return;
 
         if (level == 4) { RunWinget(); return; }
+        if (level == 5) { await RunRegistryCleaner(); SetButtonsEnabled(true); return; }
 
         SetButtonsEnabled(false);
         txtLog.Clear();
 
-        // Repair does not free user space — skip the space counter
+        // Repair and Registry cleaner do not free measurable disk space — skip the space counter
         bool trackSpace  = (level != 3);
         long spaceBefore = trackSpace ? GetFreeSpace() : 0;
 
@@ -549,6 +558,266 @@ public class MainWindow : Form
         await Cmd("DISM.exe /Online /Cleanup-Image /StartComponentCleanup >nul 2>&1");
     }
 
+    // ── Level 5: Registry Cleaner ─────────────────────────────────────────────
+    // Safe scope only: orphaned uninstall entries, broken Run/RunOnce autostart
+    // entries, and stale MRU (recently used files) lists.
+    // Never touches: COM, shell extensions, file associations, services, drivers,
+    // or anything under HKLM\SYSTEM.
+    // Flow: scan → show findings → ask confirmation → delete only confirmed entries.
+    private async Task RunRegistryCleaner()
+    {
+        SetButtonsEnabled(false);
+        txtLog.Clear();
+        Log(Strings.Get("log_reg_start"));
+        Log(Strings.Get("log_separator"));
+
+        // Run the scan on a background thread to keep the UI responsive
+        var toDelete = await Task.Run<System.Collections.Generic.List<string[]>>(
+            new Func<System.Collections.Generic.List<string[]>>(ScanRegistry));
+
+        // ── Show findings ─────────────────────────────────────────────────────
+        if (toDelete.Count == 0)
+        {
+            Log(Strings.Get("log_reg_clean"));
+            Log(Strings.Get("log_separator"));
+            Log(Strings.Get("log_done"));
+            MessageBox.Show(Strings.Get("mb_reg_clean"), Strings.Get("mb_done_title"),
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            SetButtonsEnabled(true);
+            return;
+        }
+
+        Log(string.Format(Strings.Get("log_reg_found"), toDelete.Count));
+        Log("");
+        foreach (string[] entry in toDelete)
+            Log("  [" + entry[0] + "] " + entry[3]);
+
+        Log("");
+        Log(Strings.Get("log_separator"));
+        Log(Strings.Get("log_reg_confirm"));
+
+        // ── Confirmation before deleting ──────────────────────────────────────
+        if (MessageBox.Show(
+                string.Format(Strings.Get("mb_reg_confirm_msg"), toDelete.Count),
+                Strings.Get("mb_reg_confirm_title"),
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Information) == DialogResult.No)
+        {
+            Log(Strings.Get("log_reg_cancelled"));
+            SetButtonsEnabled(true);
+            return;
+        }
+
+        // ── Delete confirmed entries ──────────────────────────────────────────
+        int deleted = 0, failed = 0;
+        Log(Strings.Get("log_reg_deleting"));
+
+        foreach (string[] entry in toDelete)
+        {
+            try
+            {
+                string hive    = entry[0];
+                string keyPath = entry[1];
+                string valName = entry[2];
+
+                var rootKey = hive == "HKLM"
+                    ? Microsoft.Win32.Registry.LocalMachine
+                    : Microsoft.Win32.Registry.CurrentUser;
+
+                if (string.IsNullOrEmpty(valName))
+                {
+                    // Delete entire subkey (orphaned uninstall entry)
+                    string parent = Path.GetDirectoryName(keyPath);
+                    string child  = Path.GetFileName(keyPath);
+                    if (parent == null) { failed++; continue; }
+                    using (var parentKey = rootKey.OpenSubKey(parent, true))
+                    {
+                        if (parentKey != null)
+                        {
+                            parentKey.DeleteSubKeyTree(child, false);
+                            Log("  ✓ " + entry[3]);
+                            deleted++;
+                        }
+                        else { failed++; }
+                    }
+                }
+                else
+                {
+                    // Delete single value (Run entry or MRU entry)
+                    using (var key = rootKey.OpenSubKey(keyPath, true))
+                    {
+                        if (key != null)
+                        {
+                            key.DeleteValue(valName, false);
+                            Log("  ✓ " + entry[3]);
+                            deleted++;
+                        }
+                        else { failed++; }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Log("  ✗ " + entry[3] + " — " + ex.Message);
+                failed++;
+            }
+        }
+
+        Log("");
+        Log(Strings.Get("log_separator"));
+        Log(string.Format(Strings.Get("log_reg_done"), deleted, failed));
+
+        string summary = failed == 0
+            ? string.Format(Strings.Get("mb_reg_done_msg"), deleted)
+            : string.Format(Strings.Get("mb_reg_done_partial"), deleted, failed);
+
+        MessageBox.Show(summary, Strings.Get("mb_done_title"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+    }
+
+    // Synchronous scan method — called on a background thread from RunRegistryCleaner.
+    // Separated from the async method to avoid C# 5 limitations with await inside
+    // complex Task.Run lambdas.
+    // Returns a list of entries to delete: [0]=hive, [1]=key path, [2]=value name, [3]=display label
+    private System.Collections.Generic.List<string[]> ScanRegistry()
+    {
+        var toDelete = new System.Collections.Generic.List<string[]>();
+
+        // ── ZONE 1: Orphaned uninstall entries ────────────────────────────────
+        // Checks both 32-bit and 64-bit uninstall hives.
+        // An entry is flagged only when BOTH UninstallString AND DisplayIcon
+        // point to paths that do not exist — requiring both conditions avoids
+        // false positives from entries that use non-standard install layouts.
+        string[] uninstallHives = {
+            @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall",
+            @"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall"
+        };
+
+        foreach (string hive in uninstallHives)
+        {
+            try
+            {
+                using (var key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(hive))
+                {
+                    if (key == null) continue;
+                    foreach (string subName in key.GetSubKeyNames())
+                    {
+                        try
+                        {
+                            using (var sub = key.OpenSubKey(subName))
+                            {
+                                if (sub == null) continue;
+
+                                // Skip Windows system components and update entries — never touch these
+                                object sysComp = sub.GetValue("SystemComponent");
+                                if (sysComp != null && sysComp.ToString() == "1") continue;
+                                if (sub.GetValue("ReleaseType") != null) continue;
+
+                                string uninstStr   = (sub.GetValue("UninstallString")  ?? "").ToString().Trim('"', ' ');
+                                string displayIcon = (sub.GetValue("DisplayIcon")       ?? "").ToString().Split(',')[0].Trim('"', ' ');
+                                string displayName = (sub.GetValue("DisplayName")       ?? subName).ToString();
+
+                                // Skip MSI-managed entries — they may not have a direct exe path
+                                if (uninstStr.StartsWith("MsiExec",  StringComparison.OrdinalIgnoreCase)) continue;
+                                if (uninstStr.StartsWith("msiexec",  StringComparison.OrdinalIgnoreCase)) continue;
+
+                                string exeDir  = Path.GetDirectoryName(uninstStr)   ?? "";
+                                string iconDir = Path.GetDirectoryName(displayIcon) ?? "";
+
+                                bool uninstMissing = !string.IsNullOrEmpty(uninstStr)   && !File.Exists(uninstStr)   && !Directory.Exists(exeDir);
+                                bool iconMissing   = !string.IsNullOrEmpty(displayIcon) && !File.Exists(displayIcon) && !Directory.Exists(iconDir);
+
+                                if (uninstMissing && iconMissing)
+                                    toDelete.Add(new string[] { "HKLM", hive + @"\" + subName, "", displayName });
+                            }
+                        }
+                        catch { }
+                    }
+                }
+            }
+            catch { }
+        }
+
+        // ── ZONE 2: Broken Run / RunOnce autostart entries ────────────────────
+        // Only HKCU — HKLM Run entries often belong to drivers and services
+        // that load differently and would generate too many false positives.
+        string[] runKeys = {
+            @"SOFTWARE\Microsoft\Windows\CurrentVersion\Run",
+            @"SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce"
+        };
+
+        foreach (string runKey in runKeys)
+        {
+            try
+            {
+                using (var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(runKey))
+                {
+                    if (key == null) continue;
+                    foreach (string valueName in key.GetValueNames())
+                    {
+                        try
+                        {
+                            string raw     = (key.GetValue(valueName) ?? "").ToString();
+                            // Extract executable path — strip quotes and arguments
+                            string exePath = raw.Trim().TrimStart('"');
+                            int    endQuote = exePath.IndexOf('"');
+                            if (endQuote > 0) exePath = exePath.Substring(0, endQuote);
+                            exePath = exePath.Trim();
+
+                            if (!string.IsNullOrEmpty(exePath) && !File.Exists(exePath))
+                                toDelete.Add(new string[] { "HKCU", runKey, valueName, valueName + " → " + exePath });
+                        }
+                        catch { }
+                    }
+                }
+            }
+            catch { }
+        }
+
+        // ── ZONE 3: Stale MRU (recently used files) string entries ────────────
+        // Only string values with a rooted path — binary PIDL values are skipped
+        // entirely because they cannot be decoded safely without Shell APIs.
+        string[] mruPaths = {
+            @"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\RecentDocs",
+            @"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\ComDlg32\OpenSavePidlMRU",
+            @"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\ComDlg32\LastVisitedPidlMRU"
+        };
+
+        foreach (string mruPath in mruPaths)
+        {
+            try
+            {
+                using (var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(mruPath))
+                {
+                    if (key == null) continue;
+                    foreach (string valueName in key.GetValueNames())
+                    {
+                        if (valueName.Equals("MRUListEx", StringComparison.OrdinalIgnoreCase) ||
+                            valueName.Equals("MRUList",   StringComparison.OrdinalIgnoreCase)) continue;
+                        try
+                        {
+                            object val = key.GetValue(valueName);
+                            // C# 5 compatible type check — no pattern matching
+                            string strVal = val as string;
+                            if (strVal != null)
+                            {
+                                string filePath = strVal.Trim();
+                                if (!string.IsNullOrEmpty(filePath)
+                                    && Path.IsPathRooted(filePath)
+                                    && !File.Exists(filePath)
+                                    && !Directory.Exists(filePath))
+                                    toDelete.Add(new string[] { "HKCU", mruPath, valueName, filePath });
+                            }
+                        }
+                        catch { }
+                    }
+                }
+            }
+            catch { }
+        }
+
+        return toDelete;
+    }
+
     // ── Level 4: Winget ───────────────────────────────────────────────────────
     private async void RunWinget()
     {
@@ -627,7 +896,7 @@ public class MainWindow : Form
             {
                 // Header with timestamp and basic system info
                 string header =
-                    "Leedeo Cleaner v1.5 - Log\r\n" +
+                    "Leedeo Cleaner v1.6 - Log\r\n" +
                     "Date: " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "\r\n" +
                     "PC:   " + Environment.MachineName + " / " + Environment.UserName + "\r\n" +
                     "================================================\r\n\r\n";
@@ -648,13 +917,13 @@ public class MainWindow : Form
 
     private void SetButtonsEnabled(bool enabled)
     {
-        btnQuick.Enabled   = enabled;
-        btnDeep.Enabled    = enabled;
-        btnRepair.Enabled  = enabled;
-        btnUpdate.Enabled  = enabled;
-        btnClose.Enabled   = enabled;
-        btnSaveLog.Enabled = enabled;
-        // Flag buttons stay enabled so the user can still switch language while something runs
+        btnQuick.Enabled    = enabled;
+        btnDeep.Enabled     = enabled;
+        btnRepair.Enabled   = enabled;
+        btnUpdate.Enabled   = enabled;
+        btnRegistry.Enabled = enabled;
+        btnClose.Enabled    = enabled;
+        btnSaveLog.Enabled  = enabled;
     }
 
     private async Task Cmd(string command)
@@ -791,14 +1060,14 @@ public class MainWindow : Form
     {
         var btn = new Button
         {
-            Text      = "  " + label,   // two spaces give breathing room from the accent bar
+            Text      = "  " + label,
             Location  = new Point(10, top),
-            Size      = new Size(220, 46),
+            Size      = new Size(220, 40),
             FlatStyle = FlatStyle.Flat,
             BackColor = cSidebar,
-            ForeColor = Color.FromArgb(210, 210, 215),   // slightly off-white, less harsh
+            ForeColor = Color.FromArgb(210, 210, 215),
             TextAlign = ContentAlignment.MiddleLeft,
-            Font      = new Font("Segoe UI", 9),          // 9pt — more refined than 10pt
+            Font      = new Font("Segoe UI", 9),
             Cursor    = Cursors.Hand
         };
         btn.FlatAppearance.BorderSize = 0;
@@ -812,8 +1081,8 @@ public class MainWindow : Form
             btn.Padding           = new Padding(14, 0, 0, 0);
         }
 
-        // Left accent bar — 3px instead of 4px, slightly more refined
-        var accent = new Panel { BackColor = accentColor, Size = new Size(3, 46), Location = new Point(0, 0) };
+        // Left accent bar
+        var accent = new Panel { BackColor = accentColor, Size = new Size(3, 40), Location = new Point(0, 0) };
         btn.Controls.Add(accent);
 
         btn.MouseEnter += (s, e) =>

@@ -142,6 +142,30 @@ public static class Strings
             { "mb_wg_error",      "Error launching Winget: "                            },
             { "mb_start_error",   "Startup error: "                                     },
 
+            // Registry cleaner button and hover
+            { "btn_registry",          "REGISTRY CLEANER"                                                                                  },
+            { "hover_registry",        "🗂 REGISTRY CLEANER\r\n\r\nScans for orphaned uninstall entries, broken autostart\r\nentries and stale file references.\r\nShows a list before deleting anything." },
+
+            // Registry cleaner log messages
+            { "log_reg_start",         ">>> 🗂 REGISTRY CLEANER — SCANNING..."                                                            },
+            { "log_reg_clean",         ">>> ✅ Registry is clean. No orphaned entries found."                                             },
+            { "log_reg_found",         ">>> {0} orphaned entries found:"                                                                  },
+            { "log_reg_confirm",       ">>> Review the list above before confirming."                                                     },
+            { "log_reg_cancelled",     ">>> ℹ Operation cancelled. Nothing was deleted."                                                  },
+            { "log_reg_deleting",      ">>> Deleting confirmed entries..."                                                                },
+            { "log_reg_done",          ">>> ✅ Done. Deleted: {0}  |  Errors: {1}"                                                        },
+
+            // Registry cleaner confirmation dialogs
+            { "confirm_reg_title",     "Registry Cleaner"                                                                                 },
+            { "confirm_reg_msg",       "This tool scans for entries that reference files no longer present on your system.\n\nIt will show you what it finds before deleting anything.\n\nProceed with the scan?" },
+
+            // Registry cleaner result dialogs
+            { "mb_reg_clean",          "The registry looks clean. No orphaned entries were found."                                        },
+            { "mb_reg_confirm_title",  "Confirm Deletion"                                                                                 },
+            { "mb_reg_confirm_msg",    "{0} orphaned entries were found.\n\nDelete all of them?"                                          },
+            { "mb_reg_done_msg",       "{0} entries successfully deleted."                                                                },
+            { "mb_reg_done_partial",   "{0} entries deleted.\n{1} could not be removed (see log for details)."                           },
+
             // Save log
             { "btn_save_log",     "💾 Save log"                                         },
             { "save_log_title",   "Save log file"                                       },
@@ -249,6 +273,26 @@ public static class Strings
             { "mb_wg_error",      "Error al lanzar Winget: "                                },
             { "mb_start_error",   "Error al iniciar: "                                      },
 
+            { "btn_registry",          "LIMPIEZA DE REGISTRO"                                                                              },
+            { "hover_registry",        "🗂 LIMPIEZA DE REGISTRO\r\n\r\nBusca entradas huérfanas de desinstalaciones,\r\narrancadores automáticos rotos y referencias a archivos eliminados.\r\nMuestra la lista antes de borrar nada." },
+
+            { "log_reg_start",         ">>> 🗂 LIMPIEZA DE REGISTRO — ANALIZANDO..."                                                      },
+            { "log_reg_clean",         ">>> ✅ El registro está limpio. No se encontraron entradas huérfanas."                            },
+            { "log_reg_found",         ">>> Se encontraron {0} entradas huérfanas:"                                                       },
+            { "log_reg_confirm",       ">>> Revisa la lista anterior antes de confirmar."                                                 },
+            { "log_reg_cancelled",     ">>> ℹ Operación cancelada. No se borró nada."                                                    },
+            { "log_reg_deleting",      ">>> Eliminando entradas confirmadas..."                                                           },
+            { "log_reg_done",          ">>> ✅ Listo. Eliminadas: {0}  |  Errores: {1}"                                                   },
+
+            { "confirm_reg_title",     "Limpieza de Registro"                                                                             },
+            { "confirm_reg_msg",       "Esta herramienta busca entradas que apuntan a archivos que ya no están en tu sistema.\n\nTe mostrará lo que encuentra antes de borrar nada.\n\n¿Iniciar el análisis?" },
+
+            { "mb_reg_clean",          "El registro parece limpio. No se encontraron entradas huérfanas."                                 },
+            { "mb_reg_confirm_title",  "Confirmar eliminación"                                                                            },
+            { "mb_reg_confirm_msg",    "Se encontraron {0} entradas huérfanas.\n\n¿Eliminarlas todas?"                                    },
+            { "mb_reg_done_msg",       "{0} entradas eliminadas correctamente."                                                           },
+            { "mb_reg_done_partial",   "{0} entradas eliminadas.\n{1} no se pudieron eliminar (ver log para detalles)."                  },
+
             { "btn_save_log",     "💾 Guardar log"                                          },
             { "save_log_title",   "Guardar archivo de log"                                  },
             { "save_log_default", "leedeo_cleaner_log"                                      },
@@ -353,6 +397,26 @@ public static class Strings
             { "mb_wg_notfound",   "Winget não encontrado neste PC."                         },
             { "mb_wg_error",      "Erro ao iniciar Winget: "                                },
             { "mb_start_error",   "Erro ao iniciar: "                                       },
+
+            { "btn_registry",          "LIMPEZA DE REGISTRO"                                                                               },
+            { "hover_registry",        "🗂 LIMPEZA DE REGISTRO\r\n\r\nProcura entradas órfãs de desinstalações,\r\nentradas de inicialização automática quebradas e referências a arquivos removidos.\r\nMostra a lista antes de apagar qualquer coisa." },
+
+            { "log_reg_start",         ">>> 🗂 LIMPEZA DE REGISTRO — ANALISANDO..."                                                       },
+            { "log_reg_clean",         ">>> ✅ O registro está limpo. Nenhuma entrada órfã encontrada."                                   },
+            { "log_reg_found",         ">>> {0} entradas órfãs encontradas:"                                                              },
+            { "log_reg_confirm",       ">>> Revise a lista acima antes de confirmar."                                                     },
+            { "log_reg_cancelled",     ">>> ℹ Operação cancelada. Nada foi apagado."                                                     },
+            { "log_reg_deleting",      ">>> Apagando entradas confirmadas..."                                                             },
+            { "log_reg_done",          ">>> ✅ Concluído. Apagadas: {0}  |  Erros: {1}"                                                   },
+
+            { "confirm_reg_title",     "Limpeza de Registro"                                                                              },
+            { "confirm_reg_msg",       "Esta ferramenta procura entradas que apontam para arquivos que não existem mais no seu sistema.\n\nMostrará o que encontrar antes de apagar qualquer coisa.\n\nIniciar a análise?" },
+
+            { "mb_reg_clean",          "O registro parece limpo. Nenhuma entrada órfã foi encontrada."                                    },
+            { "mb_reg_confirm_title",  "Confirmar exclusão"                                                                               },
+            { "mb_reg_confirm_msg",    "{0} entradas órfãs foram encontradas.\n\nApagar todas?"                                           },
+            { "mb_reg_done_msg",       "{0} entradas apagadas com sucesso."                                                               },
+            { "mb_reg_done_partial",   "{0} entradas apagadas.\n{1} não puderam ser removidas (ver log para detalhes)."                  },
 
             { "btn_save_log",     "💾 Salvar log"                                           },
             { "save_log_title",   "Salvar arquivo de log"                                   },
@@ -459,6 +523,26 @@ public static class Strings
             { "mb_wg_error",      "Errore nell'avvio di Winget: "                           },
             { "mb_start_error",   "Errore di avvio: "                                       },
 
+            { "btn_registry",          "PULIZIA REGISTRO"                                                                                  },
+            { "hover_registry",        "🗂 PULIZIA REGISTRO\r\n\r\nTrova voci orfane di disinstallazioni,\r\nvoci di avvio automatico non funzionanti e riferimenti a file eliminati.\r\nMostra l'elenco prima di eliminare qualsiasi cosa." },
+
+            { "log_reg_start",         ">>> 🗂 PULIZIA REGISTRO — SCANSIONE IN CORSO..."                                                  },
+            { "log_reg_clean",         ">>> ✅ Il registro è pulito. Nessuna voce orfana trovata."                                        },
+            { "log_reg_found",         ">>> Trovate {0} voci orfane:"                                                                    },
+            { "log_reg_confirm",       ">>> Controlla l'elenco sopra prima di confermare."                                               },
+            { "log_reg_cancelled",     ">>> ℹ Operazione annullata. Non è stato eliminato nulla."                                        },
+            { "log_reg_deleting",      ">>> Eliminazione delle voci confermate..."                                                        },
+            { "log_reg_done",          ">>> ✅ Completato. Eliminate: {0}  |  Errori: {1}"                                               },
+
+            { "confirm_reg_title",     "Pulizia Registro"                                                                                 },
+            { "confirm_reg_msg",       "Questo strumento cerca voci che puntano a file non più presenti nel sistema.\n\nMostrerà ciò che trova prima di eliminare qualsiasi cosa.\n\nAvviare la scansione?" },
+
+            { "mb_reg_clean",          "Il registro sembra pulito. Nessuna voce orfana trovata."                                         },
+            { "mb_reg_confirm_title",  "Conferma eliminazione"                                                                            },
+            { "mb_reg_confirm_msg",    "Sono state trovate {0} voci orfane.\n\nEliminarle tutte?"                                        },
+            { "mb_reg_done_msg",       "{0} voci eliminate con successo."                                                                 },
+            { "mb_reg_done_partial",   "{0} voci eliminate.\n{1} non hanno potuto essere rimosse (vedere il log per i dettagli)."        },
+
             { "btn_save_log",     "💾 Salva log"                                            },
             { "save_log_title",   "Salva file di log"                                       },
             { "save_log_default", "leedeo_cleaner_log"                                      },
@@ -564,6 +648,26 @@ public static class Strings
             { "mb_wg_error",      "Erreur lors du lancement de Winget : "                       },
             { "mb_start_error",   "Erreur au démarrage : "                                      },
 
+            { "btn_registry",          "NETTOYAGE REGISTRE"                                                                                },
+            { "hover_registry",        "🗂 NETTOYAGE REGISTRE\r\n\r\nRecherche les entrées orphelines de désinstallations,\r\nles entrées de démarrage automatique cassées et les références à des fichiers supprimés.\r\nAffiche la liste avant de supprimer quoi que ce soit." },
+
+            { "log_reg_start",         ">>> 🗂 NETTOYAGE REGISTRE — ANALYSE EN COURS..."                                                 },
+            { "log_reg_clean",         ">>> ✅ Le registre est propre. Aucune entrée orpheline trouvée."                                 },
+            { "log_reg_found",         ">>> {0} entrées orphelines trouvées :"                                                           },
+            { "log_reg_confirm",       ">>> Vérifiez la liste ci-dessus avant de confirmer."                                             },
+            { "log_reg_cancelled",     ">>> ℹ Opération annulée. Rien n'a été supprimé."                                                },
+            { "log_reg_deleting",      ">>> Suppression des entrées confirmées..."                                                        },
+            { "log_reg_done",          ">>> ✅ Terminé. Supprimées : {0}  |  Erreurs : {1}"                                              },
+
+            { "confirm_reg_title",     "Nettoyage Registre"                                                                               },
+            { "confirm_reg_msg",       "Cet outil recherche des entrées qui pointent vers des fichiers qui n'existent plus sur votre système.\n\nIl vous montrera ce qu'il trouve avant de supprimer quoi que ce soit.\n\nLancer l'analyse ?" },
+
+            { "mb_reg_clean",          "Le registre semble propre. Aucune entrée orpheline n'a été trouvée."                             },
+            { "mb_reg_confirm_title",  "Confirmer la suppression"                                                                         },
+            { "mb_reg_confirm_msg",    "{0} entrées orphelines ont été trouvées.\n\nToutes les supprimer ?"                              },
+            { "mb_reg_done_msg",       "{0} entrées supprimées avec succès."                                                              },
+            { "mb_reg_done_partial",   "{0} entrées supprimées.\n{1} n'ont pas pu être supprimées (voir le log pour les détails)."       },
+
             { "btn_save_log",     "💾 Enregistrer le log"                                       },
             { "save_log_title",   "Enregistrer le fichier de log"                               },
             { "save_log_default", "leedeo_cleaner_log"                                          },
@@ -668,6 +772,26 @@ public static class Strings
             { "mb_wg_notfound",   "Winget wurde auf diesem PC nicht gefunden."                  },
             { "mb_wg_error",      "Fehler beim Starten von Winget: "                            },
             { "mb_start_error",   "Startfehler: "                                               },
+
+            { "btn_registry",          "REGISTRIERUNG BEREINIGEN"                                                                          },
+            { "hover_registry",        "🗂 REGISTRIERUNG BEREINIGEN\r\n\r\nSucht nach verwaisten Deinstallationseinträgen,\r\ndefekten Autostart-Einträgen und Verweisen auf gelöschte Dateien.\r\nZeigt die Liste an, bevor etwas gelöscht wird." },
+
+            { "log_reg_start",         ">>> 🗂 REGISTRIERUNG BEREINIGEN — SUCHE LÄUFT..."                                                },
+            { "log_reg_clean",         ">>> ✅ Die Registrierung ist sauber. Keine verwaisten Einträge gefunden."                        },
+            { "log_reg_found",         ">>> {0} verwaiste Einträge gefunden:"                                                            },
+            { "log_reg_confirm",       ">>> Überprüfen Sie die Liste oben, bevor Sie bestätigen."                                        },
+            { "log_reg_cancelled",     ">>> ℹ Vorgang abgebrochen. Es wurde nichts gelöscht."                                           },
+            { "log_reg_deleting",      ">>> Bestätigte Einträge werden gelöscht..."                                                       },
+            { "log_reg_done",          ">>> ✅ Fertig. Gelöscht: {0}  |  Fehler: {1}"                                                    },
+
+            { "confirm_reg_title",     "Registrierung bereinigen"                                                                         },
+            { "confirm_reg_msg",       "Dieses Tool sucht nach Einträgen, die auf Dateien verweisen, die nicht mehr auf Ihrem System vorhanden sind.\n\nEs zeigt Ihnen, was gefunden wurde, bevor etwas gelöscht wird.\n\nScan starten?" },
+
+            { "mb_reg_clean",          "Die Registrierung scheint sauber zu sein. Keine verwaisten Einträge gefunden."                   },
+            { "mb_reg_confirm_title",  "Löschen bestätigen"                                                                               },
+            { "mb_reg_confirm_msg",    "{0} verwaiste Einträge wurden gefunden.\n\nAlle löschen?"                                        },
+            { "mb_reg_done_msg",       "{0} Einträge erfolgreich gelöscht."                                                               },
+            { "mb_reg_done_partial",   "{0} Einträge gelöscht.\n{1} konnten nicht entfernt werden (Details im Log)."                     },
 
             { "btn_save_log",     "💾 Log speichern"                                            },
             { "save_log_title",   "Log-Datei speichern"                                         },
