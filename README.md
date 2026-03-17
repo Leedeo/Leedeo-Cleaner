@@ -32,7 +32,9 @@ It removes junk files, optimizes the system, cleans the registry and runs Micros
 
 The latest compiled release is always available here:
 
-👉 **[Download Leedeo Cleaner](https://leedeo.github.io/projects/leedeo-cleaner/)**
+👉 **[Download Leedeo Cleaner](https://github.com/Leedeo/Leedeo-Cleaner/releases/latest)**
+
+More information at **[leedeo.github.io](https://leedeo.github.io/projects/leedeo-cleaner/)**.
 
 > **⚠️ Windows Defender / SmartScreen notice**
 >
